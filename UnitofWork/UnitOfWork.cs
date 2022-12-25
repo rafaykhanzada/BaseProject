@@ -7,12 +7,14 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace UnitofWork
 {
-    public class UnitOfWork:IUnitOfWork,IDisposable
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private IDbTransaction _transaction;
+        private bool _disposed;
         private ICategoryRepository _categoryRepository;
         public UnitOfWork(IDbTransaction transaction)
         {
@@ -26,18 +28,54 @@ namespace UnitofWork
             {
                 _transaction.Commit();
             }
-            catch (Exception ex)
+            catch
             {
                 _transaction.Rollback();
             }
-        }
+            finally
+            {
+                _transaction.Dispose();
+                _transaction = _transaction?.Connection?.BeginTransaction();
+                ResetRepositories();
+            }
 
+        }
+        private void ResetRepositories()
+        {
+            _categoryRepository = null;
+        }
         public void Dispose()
         {
-            //Close the SQL Connection and dispose the objects
-            _transaction.Connection?.Close();
-            _transaction.Connection?.Dispose();
-            _transaction.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if (_transaction != null)
+                {
+                    _transaction.Dispose();
+                    _transaction = null;
+                }
+                if (_transaction?.Connection != null)
+                {
+                    _transaction.Connection.Dispose();
+                }
+            }
+            _disposed = true;
+
+        }
+
+        ~UnitOfWork()
+        {
+            Dispose(false);
         }
     }
 }

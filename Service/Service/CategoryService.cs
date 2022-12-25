@@ -27,7 +27,6 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
-
         public async Task<ResultModel> CreateOrUpdate(CategoryDTO model)
         {
             try
@@ -84,7 +83,8 @@ namespace Service.Service
         {
             try
             {
-
+                _resultModel.Data = _mapper.Map<List<CategoryDTO>>(_unitOfWork.CategoryRepository.GetAllPaged(pageSize,pageIndex).ToList());
+                _resultModel.Success = true;
             }
             catch (Exception ex)
             {

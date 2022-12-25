@@ -15,26 +15,29 @@ namespace Repository.Repository
 
         public RepositoryBase(IDbTransaction transaction) { _transaction = transaction; }
 
-        protected string EntityName => "tbl"+typeof(T).Name;
+        protected string EntityName => "tbl" + typeof(T).Name;
 
-        public virtual IEnumerable<T> GetAll()
+        //public virtual IEnumerable<T> GetAll()
+        //{
+        //    var query = $"SELECT * FROM {EntityName}";
+        //    var results = DbConnection.Query<T>(query,transaction:_transaction);
+        //    return results;
+        //}
+        public async void AsyncExecute(string QUERY, object MODEL)
         {
-            var query = $"SELECT * FROM {EntityName}";
-            var results = DbConnection.Query<T>(query,transaction:_transaction);
-            return results;
+            await DbConnection.ExecuteAsync(QUERY, MODEL, transaction: _transaction);
         }
-
         public virtual IEnumerable<T> GetAllPaged(int limit, int offset)
         {
             var query = $"SELECT * FROM {EntityName} ORDER BY Id DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY";
-            var results = DbConnection.Query<T>(query, new { Limit = limit, Offset = offset });
+            var results = DbConnection.Query<T>(query, new { Limit = limit, Offset = offset }, transaction: _transaction);
             return results;
         }
 
         public async Task<IEnumerable<T>> GetAllPagedAsync(int limit, int offset)
         {
             var query = $"SELECT * FROM {EntityName} ORDER BY Id DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY";
-            var results = await DbConnection.QueryAsync<T>(query, new { Limit = limit, Offset = offset });
+            var results = await DbConnection.QueryAsync<T>(query, new { Limit = limit, Offset = offset }, transaction: _transaction);
             return results;
         }
 
@@ -61,7 +64,7 @@ namespace Repository.Repository
             }
         }
 
-        public virtual void Update(T entity)
+        public virtual void UpdateVoid(T entity)
         {
             var propertyValues = GetEntityProperties(entity);
             var keyInfo = GetEntityKeyInfo();
@@ -72,11 +75,11 @@ namespace Repository.Repository
             DbConnection.Execute(sql, entity, commandType: CommandType.Text, transaction: _transaction);
         }
 
-        public virtual void Update(IEnumerable<T> entities)
+        public virtual void UpdateVoid(IEnumerable<T> entities)
         {
             foreach (var entity in entities)
             {
-                Update(entity);
+                UpdateVoid(entity);
             }
         }
 
@@ -85,7 +88,7 @@ namespace Repository.Repository
             var keyInfo = GetEntityKeyInfo();
             var keyPairs = $"{keyInfo.Name} = @{keyInfo.Name}";
             var sql = $"DELETE FROM [{EntityName}] WHERE {keyPairs}";
-            DbConnection.Execute(sql, entity, commandType: CommandType.Text);
+            DbConnection.Execute(sql, entity, commandType: CommandType.Text, transaction: _transaction);
         }
 
         public virtual void Delete(IEnumerable<T> entities)
@@ -99,7 +102,7 @@ namespace Repository.Repository
         public virtual void DeleteAll()
         {
             var sql = $"DELETE FROM [{EntityName}]";
-            DbConnection.Execute(sql, commandType: CommandType.Text);
+            DbConnection.Execute(sql, commandType: CommandType.Text, transaction: _transaction);
         }
 
         private Dictionary<string, object> GetEntityProperties(T entity)
@@ -180,7 +183,7 @@ namespace Repository.Repository
             using var connection = DbConnection;
 
             var result = connection.QuerySingle<TReturn>(storeProcedure, dynamicParameters,
-            commandType: CommandType.StoredProcedure);
+            commandType: CommandType.StoredProcedure, transaction: _transaction);
 
             return result ?? throw new KeyNotFoundException($"{EntityName} could not be found.");
         }
@@ -190,57 +193,101 @@ namespace Repository.Repository
             using var connection = DbConnection;
 
             var result = connection.Query<TReturn>(storeProcedure, dynamicParameters,
-            commandType: CommandType.StoredProcedure);
+            commandType: CommandType.StoredProcedure, transaction: _transaction);
 
             return result ?? throw new KeyNotFoundException($"{EntityName} could not be found.");
         }
 
-        public int Execute(string storeProcedure, DynamicParameters dynamicParameters)
-        {
-            using var connection = DbConnection;
-            return connection.Execute(storeProcedure, dynamicParameters, commandType: CommandType.StoredProcedure);
-        }
-        public T GetById<TParameter>(TParameter id) where TParameter : struct
-        {
-            using var connection = DbConnection;
-            return connection.Get<T>(id);
-        }
-
-        public IEnumerable<T> GetBy(Func<T, bool> predicate)
-        {
-            using var connection = DbConnection;
-            return connection.Query<T>($"SELECT * FROM {EntityName}",transaction:_transaction).Where(predicate);
-        }
-
+        public int Execute(string storeProcedure, DynamicParameters dynamicParameters) => DbConnection.Execute(storeProcedure, dynamicParameters, commandType: CommandType.StoredProcedure, transaction: _transaction);
+        public T GetById<TParameter>(TParameter id) where TParameter : struct => DbConnection.Get<T>(id);
+        public IEnumerable<T> GetBy(Func<T, bool> predicate) => DbConnection.Query<T>($"SELECT * FROM {EntityName}", transaction: _transaction).Where(predicate);
         //Async
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync() => await DbConnection.GetAllAsync<T>(transaction: _transaction);
+        public async Task<T> GetByIdAsync<TParameter>(TParameter id) where TParameter : struct => await DbConnection.GetAsync<T>(id, transaction: _transaction) ?? throw new KeyNotFoundException("${TableName} with id [{id}] could not be found.");
+        public async Task<int> AddAsync(T entity) => await DbConnection.InsertAsync(entity, transaction: _transaction);
+        public async Task<bool> UpdateAsync(T entity) => await DbConnection.UpdateAsync(entity, transaction: _transaction);
+        public async Task<bool> DeleteAsync(T entity) => await DbConnection.DeleteAsync(entity, transaction: _transaction);
+        //Dapper Extra Method
+        public void Add(T entity, bool LastInsertId = false) => DbConnection.Insert<T>(entity, transaction: _transaction);
+        public bool Add(T entity) => DbConnection.Insert<T>(entity, transaction: _transaction) > 0;
+        public bool Delete(int Id) => (int)DbConnection.Execute($"delete from {EntityName} where Id = @Id", param: new { Id }, transaction: _transaction) > 0;
+        public bool Update(T entity) => DbConnection.Update<T>(entity, transaction: _transaction);
+        public bool Update(List<T> entity) => DbConnection.Update<List<T>>(entity, transaction: _transaction);
+        public bool IsExist(string Query) => Count(Query) > 0;
+        public bool IsExist(string Query, object model) => Count(Query, model) > 0;
+        public IEnumerable<T> List() => GetAll();
+        public IEnumerable<T> List(bool OrderByDesc) => DbConnection.Query<T>($"select * from {EntityName} order by Id {(OrderByDesc ? "desc" : "asc")}", transaction: _transaction);
+        public IEnumerable<T> List(string Query) => DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)}", transaction: _transaction);
+        public IEnumerable<T> List(string Query, object model) => DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)}", model, transaction: _transaction);
+        public IEnumerable<T> List(int page = 0, int pagesize = 10) => DbConnection.Query<T>($"select * from {EntityName} LIMIT {pagesize} OFFSET {page}", transaction: _transaction);
+        public IEnumerable<T> List(string Query, int page = 0, int pagesize = 10) => DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} LIMIT {pagesize} OFFSET {page}", transaction: _transaction);
+        public ListModel<T> PagedList(int page = 0, int pagesize = 10)
         {
-            using var connection = DbConnection;
-            return await connection.GetAllAsync<T>();
+            ListModel<T> ReturnModel = new ListModel<T>(); /*page = (page == 0) ? 1 : page;*/
+            ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} order by Id desc LIMIT {pagesize} OFFSET {page}", transaction: _transaction).ToList();
+            ReturnModel.CurrentPage = page;
+            ReturnModel.PageCount = pagesize;
+            ReturnModel.ItemCount = Count();
+            return ReturnModel;
         }
-
-        public async Task<T> GetByIdAsync<TParameter>(TParameter id) where TParameter : struct
+        public ListModel<T> PagedList(string Query, int page = 0, int pagesize = 10)
         {
-            using var connection = DbConnection;
-            return await connection.GetAsync<T>(id) ?? throw new KeyNotFoundException("${TableName} with id [{id}] could not be found.");
+            ListModel<T> ReturnModel = new ListModel<T>();
+            try
+            {
+                if (Query.Length > 4)
+                    Query = (Query.Trim().Substring(0, 3).ToUpper() == "AND") ? Query.Trim().Remove(0, 3) : Query;
+                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} LIMIT {pagesize} OFFSET {page}", transaction: _transaction).ToList();
+                ReturnModel.CurrentPage = page;
+                ReturnModel.PageCount = pagesize;
+                ReturnModel.ItemCount = Count(Query);
+            }
+            catch (Exception ex)
+            {
+                string mesaj = ex.Message;
+            }
+            return ReturnModel;
         }
-
-        public async Task AddAsync(T entity)
+        public ListModel<T> PagedList(string Query, object model, int page = 0, int pagesize = 10)
         {
-            using var connection = DbConnection;
-            await connection.InsertAsync(entity);
+            ListModel<T> ReturnModel = new ListModel<T>();
+            try
+            {
+                if (Query.Length > 4)
+                    Query = (Query.Trim().Substring(0, 3).ToUpper() == "AND") ? Query.Trim().Remove(0, 3) : Query;
+                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 4) ? "1=1" : Query)} LIMIT {pagesize} OFFSET {page}", model, transaction: _transaction).ToList();
+                ReturnModel.CurrentPage = page;
+                ReturnModel.PageCount = pagesize;
+                ReturnModel.ItemCount = Count(Query, model);
+            }
+            catch (Exception ex)
+            {
+                string mesaj = ex.Message;
+            }
+            return ReturnModel;
         }
-
-        public async Task UpdateAsync(T entity)
-        {
-            using var connection = DbConnection;
-            await connection.UpdateAsync(entity);
-        }
-
-        public async Task DeleteAsync(T entity)
-        {
-            using var connection = DbConnection;
-            await connection.DeleteAsync(entity);
-        }
+        public IEnumerable<T> GetAll() => DbConnection.Query<T>($"select * from {EntityName}", transaction: _transaction);
+        public int Count(string Query, object model) => DbConnection.Query<int>($"select count(*) from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} ", model, transaction: _transaction).FirstOrDefault();
+        public int Count(string Query) => DbConnection.Query<int>($"select count(*) from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} ", null, transaction: _transaction).FirstOrDefault();
+        public int Count() => DbConnection.Query<int>($"select count(*) from {EntityName} ", null, transaction: _transaction).FirstOrDefault();
+        public int MaxId() => DbConnection.Query<int>($"select max(Id) from {EntityName} ", null, transaction: _transaction).FirstOrDefault();
+        public bool Truncate() => (DbConnection.Execute($"truncate {EntityName}", transaction: _transaction) > 0) ? true : false;
+        public bool Drop() => (DbConnection.Execute($"drop table if exists {EntityName}", transaction: _transaction) > 0) ? true : false;
+        public bool Optimize() => (DbConnection.Execute($"optimize if exists {EntityName}", transaction: _transaction) > 0) ? true : false;
+        public bool Lock() => (DbConnection.Execute($"lock tables {EntityName} read", transaction: _transaction) > 0) ? true : false;
+        public bool UnLock() => (DbConnection.Execute($"FLUSH TABLES WITH READ LOCK;unlock tables {EntityName}", transaction: _transaction) > 0) ? true : false;
+        public bool Repair() => (DbConnection.Execute($"repair table exists {EntityName}", transaction: _transaction) > 0) ? true : false;
+        public IEnumerable<T> FindList(int Id) => DbConnection.Query<T>($"select * from {EntityName} where Id = @Id", param: new { Id }, transaction: _transaction);
+        public dynamic FreeDynamicQuery(string Query) => DbConnection.Query<dynamic>(Query, null, transaction: _transaction).FirstOrDefault();
+        public dynamic FreeDynamicQuery(string Query, object model) => DbConnection.Query<dynamic>(Query, model, transaction: _transaction).FirstOrDefault();
+        public T FreeQuerySingle(string Query) => DbConnection.Query<T>(Query, null, transaction: _transaction).FirstOrDefault();
+        public T FreeQuerySingle(string Query, object model) => DbConnection.Query<T>(Query, model, transaction: _transaction).FirstOrDefault();
+        public IEnumerable<T> FreeQuery(string Query) => DbConnection.Query<T>(Query, null, transaction: _transaction);
+        public int FindId(string Query) => DbConnection.QuerySingle<int>($"select Id from {EntityName} where 1=1 and {Query}", null, transaction: _transaction);
+        public int FindId(string Query, object model) => DbConnection.QuerySingle<int>($"select Id from {EntityName} where 1=1 and {Query}", model, transaction: _transaction);
+        public int PageCount(string Query, int ListCount) => (int)(Count(Query) / ListCount);
+        public bool Execute(string Query) => DbConnection.Execute(Query, transaction: _transaction) > 0;
+        public bool Execute(string Query, object model) => DbConnection.Execute(Query, model, _transaction) > 0;
+        public void Rollback() => _transaction.Rollback();
     }
 }
