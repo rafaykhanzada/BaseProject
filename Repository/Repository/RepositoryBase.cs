@@ -224,7 +224,7 @@ namespace Repository.Repository
         public ListModel<T> PagedList(int page = 0, int pagesize = 10)
         {
             ListModel<T> ReturnModel = new ListModel<T>(); /*page = (page == 0) ? 1 : page;*/
-            ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} order by Id desc LIMIT {pagesize} OFFSET {page}", transaction: _transaction).ToList();
+            ReturnModel.List = DbConnection.Query<T>($"SELECT * FROM {EntityName} ORDER BY Id DESC OFFSET {page} ROWS FETCH NEXT {pagesize} ROWS ONLY", transaction: _transaction).ToList();
             ReturnModel.CurrentPage = page;
             ReturnModel.PageCount = pagesize;
             ReturnModel.ItemCount = Count();
@@ -237,7 +237,7 @@ namespace Repository.Repository
             {
                 if (Query.Length > 4)
                     Query = (Query.Trim().Substring(0, 3).ToUpper() == "AND") ? Query.Trim().Remove(0, 3) : Query;
-                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} LIMIT {pagesize} OFFSET {page}", transaction: _transaction).ToList();
+                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} ORDER BY Id DESC OFFSET {page} ROWS FETCH NEXT {pagesize} ROWS ONLY", transaction: _transaction).ToList();
                 ReturnModel.CurrentPage = page;
                 ReturnModel.PageCount = pagesize;
                 ReturnModel.ItemCount = Count(Query);
@@ -255,7 +255,7 @@ namespace Repository.Repository
             {
                 if (Query.Length > 4)
                     Query = (Query.Trim().Substring(0, 3).ToUpper() == "AND") ? Query.Trim().Remove(0, 3) : Query;
-                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 4) ? "1=1" : Query)} LIMIT {pagesize} OFFSET {page}", model, transaction: _transaction).ToList();
+                ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 4) ? "1=1" : Query)} ORDER BY Id DESC OFFSET {page} ROWS FETCH NEXT {pagesize} ROWS ONLY", model, transaction: _transaction).ToList();
                 ReturnModel.CurrentPage = page;
                 ReturnModel.PageCount = pagesize;
                 ReturnModel.ItemCount = Count(Query, model);
