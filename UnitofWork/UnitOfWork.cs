@@ -16,11 +16,15 @@ namespace UnitofWork
         private IDbTransaction _transaction;
         private bool _disposed;
         private ICategoryRepository _categoryRepository;
+        private IMenuRepository _menuRepository;
+        private IPermissionRepository _permissionRepository;
         public UnitOfWork(IDbTransaction transaction)
         {
             _transaction = transaction;
         }
         public ICategoryRepository CategoryRepository => _categoryRepository ??= new CategoryRepository(_transaction);
+        public IMenuRepository MenuRepository => _menuRepository ??= new MenuRepository(_transaction);
+        public IPermissionRepository PermissionRepository => _permissionRepository ??= new PermissionRepository(_transaction);
 
         public void Commit()
         {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Data.DTO;
+using Core.Data.DTOs;
 using Core.Data.Entities;
 
 namespace Core.Utilities
@@ -11,6 +12,7 @@ namespace Core.Utilities
             var mappingConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<Category, CategoryDTO>().ReverseMap();
+                config.CreateMap<User, UserVM>().ReverseMap();
 
             });
             return mappingConfig;

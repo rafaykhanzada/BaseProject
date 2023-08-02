@@ -200,7 +200,7 @@ namespace Repository.Repository
 
         public int Execute(string storeProcedure, DynamicParameters dynamicParameters) => DbConnection.Execute(storeProcedure, dynamicParameters, commandType: CommandType.StoredProcedure, transaction: _transaction);
         public T GetById<TParameter>(TParameter id) where TParameter : struct => DbConnection.Get<T>(id);
-        public IEnumerable<T> GetBy(Func<T, bool> predicate) => DbConnection.Query<T>($"SELECT * FROM {EntityName}", transaction: _transaction).Where(predicate);
+        public IEnumerable<T> Get(Func<T, bool> predicate) => DbConnection.Query<T>($"SELECT * FROM {EntityName}", transaction: _transaction).Where(predicate);
         //Async
         public async Task<IEnumerable<T>> GetAllAsync() => await DbConnection.GetAllAsync<T>(transaction: _transaction);
         public async Task<T> GetByIdAsync<TParameter>(TParameter id) where TParameter : struct => await DbConnection.GetAsync<T>(id, transaction: _transaction) ?? throw new KeyNotFoundException("${TableName} with id [{id}] could not be found.");

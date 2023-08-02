@@ -1,4 +1,5 @@
-﻿using Core.Data.DTO;
+﻿using AutoMapper;
+using Core.Data.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Repository.IRepository;
 using Service.IService;
@@ -14,19 +15,22 @@ namespace BaseProject.Controllers
         private readonly ICategoryService _categoryService;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryService categoryService, IHttpContextAccessor httpContextAccessor, ICategoryRepository categoryRepository)
+        public CategoryController(ICategoryService categoryService, IHttpContextAccessor httpContextAccessor, ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryService = categoryService;
             _httpContextAccessor = httpContextAccessor;
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         // GET: api/<CategoryController>
         [HttpGet]
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
-            return Ok(_categoryRepository.PagedList(pageIndex,pageSize));
+            var list = _categoryRepository.PagedList($"", pageIndex, pageSize).List;
+            return Ok(_mapper.Map<List<CategoryDTO>>(list));
         }
 
         // GET api/<CategoryController>/5

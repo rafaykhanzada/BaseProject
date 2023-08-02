@@ -25,6 +25,7 @@ namespace Core.Data.DataContext
         public DbSet<ActivityLog> ActivityLog { get; set; }
         public DbSet<ScheduleJob> ScheduleJob { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<RefreshToken> RefreshToken { get; set; }
         public DbSet<Menu> Menu { get; set; }
         public DbSet<Permission> Permission { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -42,6 +43,7 @@ namespace Core.Data.DataContext
             builder.Entity<ScheduleJob>().ToTable($"tbl{nameof(ScheduleJob)}");
             builder.Entity<User>().ToTable($"tbl{nameof(User)}");
             builder.Entity<Menu>().ToTable($"tbl{nameof(Menu)}");
+            builder.Entity<RefreshToken>().ToTable($"tbl{nameof(RefreshToken)}");
             builder.Entity<Permission>().ToTable($"tbl{nameof(Permission)}");
         }
     }

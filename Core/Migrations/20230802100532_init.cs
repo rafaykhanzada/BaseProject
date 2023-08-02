@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Core.Migrations
 {
-    public partial class _init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -183,7 +183,14 @@ namespace Core.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ControlId = table.Column<int>(type: "int", nullable: true),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Route = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Route = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,6 +292,29 @@ namespace Core.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "tblRefreshToken",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    JwtId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateExpire = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tblRefreshToken", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_tblRefreshToken_tblUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "tblUser",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -314,6 +344,11 @@ namespace Core.Migrations
                 name: "IX_tblPermission_RoleId",
                 table: "tblPermission",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tblRefreshToken_UserId",
+                table: "tblRefreshToken",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
@@ -362,16 +397,19 @@ namespace Core.Migrations
                 name: "tblPermission");
 
             migrationBuilder.DropTable(
-                name: "tblScheduleJob");
+                name: "tblRefreshToken");
 
             migrationBuilder.DropTable(
-                name: "tblUser");
+                name: "tblScheduleJob");
 
             migrationBuilder.DropTable(
                 name: "tblMenu");
 
             migrationBuilder.DropTable(
                 name: "tblRole");
+
+            migrationBuilder.DropTable(
+                name: "tblUser");
         }
     }
 }

@@ -1,4 +1,5 @@
 using BaseProject.Infrastructure;
+using BaseProject.Middlewear;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
@@ -13,8 +14,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 
 }); ;
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen();
 new DependencyRegister(builder);
 builder.Services.AddCors(options =>
 options.AddDefaultPolicy(builder =>
@@ -39,24 +40,23 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-app.UseHsts();
-app.UseSwagger();
-app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCors();
+//Authentication & Authorization
 app.UseAuthentication();
 app.UseRouting();
-app.UseCors();
 app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.MapControllers();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.UseGloablCustomMiddleware();
+//Seed the database
+//AppDbInitializer.SeedRolesToDb(app).Wait();
+
 app.Run();

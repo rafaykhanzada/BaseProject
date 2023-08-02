@@ -10,6 +10,8 @@ namespace UnitofWork
     public interface IUnitOfWork : IDisposable
     {
         ICategoryRepository CategoryRepository { get; }
+        IMenuRepository MenuRepository { get; }
+        IPermissionRepository PermissionRepository { get; }
 
         void Commit();
     }

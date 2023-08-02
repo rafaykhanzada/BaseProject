@@ -42,7 +42,7 @@ namespace Repository.IRepository
         Task<IEnumerable<T>> GetAllAsync();
         IEnumerable<T> GetAllPaged(int limit, int offset);
         Task<IEnumerable<T>> GetAllPagedAsync(int limit, int offset);
-        IEnumerable<T> GetBy(Func<T, bool> predicate);
+        IEnumerable<T> Get(Func<T, bool> predicate);
         T GetById<TParameter>(TParameter id) where TParameter : struct;
         Task<T> GetByIdAsync<TParameter>(TParameter id) where TParameter : struct;
         void Insert(IEnumerable<T> entities);

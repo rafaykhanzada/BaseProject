@@ -8,6 +8,10 @@ using Service.IService;
 using Service.Service;
 using Repository.IRepository;
 using Repository.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
+using UnitofWork;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BaseProject.Infrastructure
 {
@@ -27,6 +31,43 @@ namespace BaseProject.Infrastructure
             services.AddSingleton(mapper);
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #endregion
+            #region Swagger_Setting
+            services.AddSwaggerGen(setup =>
+            {
+                setup.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "INDEXING API - V1",
+                    Version = "v1",
+                    License = new OpenApiLicense { Name = "Microsoft ASP.NET Core" },
+                    Description = "FINOSYS PRIVATE LIMITED",
+                    Contact = new OpenApiContact() { Email = "info@finosys.com", Name = "Finosys" }
+                });
+                // Include 'SecurityScheme' to use JWT Authentication
+                var jwtSecurityScheme = new OpenApiSecurityScheme
+                {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "JWT Authentication",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                setup.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                setup.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { jwtSecurityScheme, new[] { "Bearer" } }
+                });
+
+            });
+            #endregion
             #region Logs
             var levelSwitch = new LoggingLevelSwitch();
             levelSwitch.MinimumLevel = LogEventLevel.Information;
@@ -43,10 +84,16 @@ namespace BaseProject.Infrastructure
             #endregion
             #region Repository
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IMenuRepository, MenuRepository>();
+            services.AddScoped<IPermissionRepository, PermissionRepository>();
             #endregion
             #region Services
-            services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ResultModel>();
+            services.AddScoped<TokenValidationParameters>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IPermissionService, PermissionService>();
             #endregion
 
 

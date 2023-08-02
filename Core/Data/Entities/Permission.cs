@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Data.Entities
 {
-    public class Permission:HasId
+    public class Permission:HasIdDate
     {
         [ForeignKey("Control")]
         public int? ControlId { get; set; }
