@@ -6,15 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 
+
 namespace Core.Data.Entities
 {
-    public class Category:HasIdDate
+    public class Plant : HasIdDate
     {
-        public Category()
+        public Plant()
         {
+            Products = new HashSet<Product>();
             Emails = new HashSet<Email>();
         }
-        public string? Name { get; set; }
+        public string? PlantCode { get; set; }
+        public string? PlantName { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Product> Products { get; set; }
         [JsonIgnore]
         public virtual ICollection<Email> Emails { get; set; }
     }

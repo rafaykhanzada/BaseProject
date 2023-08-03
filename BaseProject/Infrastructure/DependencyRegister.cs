@@ -86,6 +86,19 @@ namespace BaseProject.Infrastructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IAuditorRepository, AuditorRepository>();
+            services.AddScoped<IAuditTypeRepository, AuditTypeRepository>();
+            services.AddScoped<ICheckpointsRepository, CheckpointsRepository>();
+            services.AddScoped<ICPClassRepository, CPClassRepository>();
+            services.AddScoped<ICPDeviationRepository, CPDeviationRepository>();
+            services.AddScoped<IEmailRepository, EmailRepository>();
+            services.AddScoped<IFaultGroupRepository, FaultGroupRepository>();
+            services.AddScoped<IModelRepository, ModelRepository>();
+            services.AddScoped<IPlantRepository, PlantRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IShiftRepository, ShiftRepository>();
+            services.AddScoped<IVariantRepository, VariantRepository>();
+            services.AddScoped<IZoneRepository, ZoneRepository>();
             #endregion
             #region Services
             services.AddScoped<ResultModel>();
@@ -94,6 +107,19 @@ namespace BaseProject.Infrastructure
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IAuditorService, AuditorService>();
+            services.AddScoped<IAuditTypeService,AuditTypeService>();
+            services.AddScoped<ICheckpointsService, CheckpointsService>();
+            services.AddScoped<ICPClassService, CPClassService>();
+            services.AddScoped<ICPDeviationService, CPDeviationService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IFaultGroupService, FaultGroupService>();
+            services.AddScoped<IModelService, ModelService>();
+            services.AddScoped<IPlantService, PlantService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IShiftService, ShiftService>();
+            services.AddScoped<IVariantService, VariantService>();
+            services.AddScoped<IZoneService, IZoneService>();
             #endregion
 
 

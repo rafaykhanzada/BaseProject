@@ -20,6 +20,19 @@ namespace Core.Data.DataContext
         { }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }
+        public DbSet<CPClass> CPClass { get; set; }
+        public DbSet<CPDeviation> CPDeviation { get; set; }
+        public DbSet<Auditor> Auditor { get; set; }
+        public DbSet<Email> Email { get; set; }
+        public DbSet<FaultGroup> FaultGroup { get; set; }
+        public DbSet<Shift> Shift { get; set; }
+        public DbSet<Model> Model { get; set; }
+        public DbSet<Variant> Variant { get; set; }
+        public DbSet<AuditType> AuditType { get; set; }
+        public DbSet<Product> Product { get; set; }
+        public DbSet<Plant> Plant { get; set; }
+        public DbSet<Zone> Zone { get; set; }
+        public DbSet<Checkpoints> Checkpoints { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
@@ -37,6 +50,19 @@ namespace Core.Data.DataContext
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(builder);
+            builder.Entity<CPClass>().ToTable($"tbl{nameof(CPClass)}");
+            builder.Entity<CPDeviation>().ToTable($"tbl{nameof(CPDeviation)}");
+            builder.Entity<Auditor>().ToTable($"tbl{nameof(Auditor)}");
+            builder.Entity<Email>().ToTable($"tbl{nameof(Email)}");
+            builder.Entity<FaultGroup>().ToTable($"tbl{nameof(FaultGroup)}");
+            builder.Entity<Shift>().ToTable($"tbl{nameof(Shift)}");
+            builder.Entity<Model>().ToTable($"tbl{nameof(Model)}");
+            builder.Entity<Variant>().ToTable($"tbl{nameof(Variant)}");
+            builder.Entity<AuditType>().ToTable($"tbl{nameof(AuditType)}");
+            builder.Entity<Product>().ToTable($"tbl{nameof(Product)}");
+            builder.Entity<Plant>().ToTable($"tbl{nameof(Plant)}");
+            builder.Entity<Zone>().ToTable($"tbl{nameof(Zone)}");
+            builder.Entity<Checkpoints>().ToTable($"tbl{nameof(Checkpoints)}");
             builder.Entity<Category>().ToTable($"tbl{nameof(Category)}");
             builder.Entity<Role>().ToTable($"tbl{nameof(Role)}");
             builder.Entity<ActivityLog>().ToTable($"tbl{nameof(ActivityLog)}");
