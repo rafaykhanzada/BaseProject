@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using AutoMapper.Configuration.Annotations;
+using Dapper.Contrib.Extensions;
 
 namespace Core.Data.Entities
 {
@@ -20,6 +22,7 @@ namespace Core.Data.Entities
         public string? ZoneName { get; set; }
         public bool? IsStation { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Checkpoints> Checkpoints { get; set; }
+        [IgnoreAttribute]
+        public virtual ICollection<Checkpoints>? Checkpoints { get; set; }
     }
 }

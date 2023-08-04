@@ -2,6 +2,7 @@
 using Core.Data.DTO;
 using Core.Data.Entities;
 using Core.Utilities;
+using Dapper.Contrib.Extensions;
 using Microsoft.Extensions.Logging;
 using Service.IService;
 using System;
@@ -32,7 +33,7 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Zone>(model);
-                if(data.Id == 0) 
+                if (data.Id == 0) 
                 {
                     var result =  _unitOfWork.ZoneRepository.Insert(data);
                 }

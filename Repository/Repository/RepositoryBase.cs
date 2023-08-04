@@ -123,6 +123,9 @@ namespace Repository.Repository
                 // Skip methods specifically ignored
                 if (property.IsDefined(typeof(IgnoreAttribute), false))
                     continue;
+                // Skip methods specifically ignored
+                if (property.CustomAttributes.Any(x => x.AttributeType.Name == "IgnoreAttribute"))
+                    continue;
 
                 if (property.IsDefined(typeof(System.ComponentModel.DataAnnotations.KeyAttribute), false) && !property.IsDefined(typeof(NotDbGeneratedAttribute), false))
                     continue;
