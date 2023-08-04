@@ -59,7 +59,19 @@ namespace Service.Service
         {
             try
             {
-
+                var result = _unitOfWork.EmailRepository.Get(x => x.Id == id).FirstOrDefault();
+                if (result != null)
+                {
+                    _unitOfWork.EmailRepository.Delete(id);
+                    _unitOfWork.Commit();
+                    _resultModel.Success = true;
+                    _resultModel.Message = "Record deleted sucessfully.";
+                }
+                else
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = "Record not found.";
+                }
             }
             catch (Exception ex)
             {

@@ -58,8 +58,9 @@ namespace BaseProject.Controllers
 
         // DELETE api/<CategoryController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            return Ok(_categoryService.Delete(id));
         }
     }
 }

@@ -59,7 +59,28 @@ namespace Service.Service
         {
             try
             {
+                var result = _unitOfWork.CPClassRepository.Get(x => x.Id == id).FirstOrDefault();
+                if (result != null)
+                {
+                    if (ValidateForDelete(id)) 
+                    {
+                        _unitOfWork.CPClassRepository.Delete(id);
+                        _unitOfWork.Commit();
+                        _resultModel.Success = true;
+                        _resultModel.Message = "Record deleted sucessfully.";
+                    }
+                    else 
+                    {
+                        _resultModel.Success = false;
+                        _resultModel.Message = "Record can't be deleted sucessfully, it is in used.";
+                    }
 
+                }
+                else
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = "Record not found.";
+                }
             }
             catch (Exception ex)
             {
@@ -123,6 +144,21 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private bool ValidateForDelete(int id)
+        {
+            bool result = true;
+            try
+            {
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.CPClassId == id).Count();
+                result = (cnt > 0) ? false : true;
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return result;
         }
     }
 }
