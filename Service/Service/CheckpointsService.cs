@@ -33,7 +33,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Checkpoints>(model);
-                var result = _unitOfWork.CheckpointsRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.CheckpointsRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.CheckpointsRepository.Update(data);
+                }
+
                 var list = _unitOfWork.CheckpointsRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

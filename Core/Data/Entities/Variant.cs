@@ -26,10 +26,10 @@ namespace Core.Data.Entities
         public int? AudTypeId { get; set; }
         public string? AudTypeName { get; set; }
         [JsonIgnore]
-        [ForeignKey("Product")]
+        [ForeignKey("ProductId")]
         public virtual Product? Product { get; set; }
         [JsonIgnore]
-        [ForeignKey("AuditType")]
+        [ForeignKey("AudTypeId")]
         public virtual AuditType? AuditType { get; set; }
         [JsonIgnore]
         public virtual ICollection<Model> Models { get; set; }

@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Variant>(model);
-                var result = _unitOfWork.VariantRepository.Insert(data);
+                if(data.Id ==0) 
+                {
+                    var result = _unitOfWork.VariantRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.VariantRepository.Update(data);
+                }
+                
                 var list = _unitOfWork.VariantRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

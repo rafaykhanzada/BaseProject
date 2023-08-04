@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Shift>(model);
-                var result = _unitOfWork.ShiftRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.ShiftRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.ShiftRepository.Update(data);
+                }
+                
                 var list = _unitOfWork.ShiftRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

@@ -20,25 +20,25 @@ namespace Core.Data.Entities
         public string? AudTypeName { get; set; }
         public int? VariantId { get; set; }
         public string? VariantName { get; set; }
-        public string? ZoneId { get; set; }
+        public int? ZoneId { get; set; }
         public string? ZoneName { get; set; }
-        public string? FGroupId { get; set; }
+        public int? FGroupId { get; set; }
         public string? FGroupName { get; set; }
-        public string? CPClassId { get; set; }
+        public int? CPClassId { get; set; }
         public string? CPClassName { get; set; }
         public decimal? DWeightage { get; set; }
 
-        [ForeignKey("Variant")]
+        [ForeignKey("VariantId")]
         public Variant? Variant { get; set; }
 
-        [ForeignKey("Zone")]
+        [ForeignKey("ZoneId")]
         public Zone? Zone { get; set; }
 
-        [ForeignKey("FaultGroup")]
+        [ForeignKey("FGroupId")]
         public FaultGroup? FaultGroup { get; set; }
-        [ForeignKey("CPClass")]
+        [ForeignKey("CPClassId")]
         public CPClass? CPClass { get; set; }
-        [ForeignKey("AuditType")]
+        [ForeignKey("AudTypeId")]
         public AuditType? AuditType { get; set; }
 
 

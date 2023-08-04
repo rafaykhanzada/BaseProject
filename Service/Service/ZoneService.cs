@@ -13,7 +13,7 @@ using UnitofWork;
 
 namespace Service.Service
 {
-    internal class ZoneService
+    public class ZoneService : IZoneService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Zone>(model);
-                var result = _unitOfWork.ZoneRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result =  _unitOfWork.ZoneRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.ZoneRepository.Update(data);
+                }
+
                 var list = _unitOfWork.ZoneRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

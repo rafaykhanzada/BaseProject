@@ -33,7 +33,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<FaultGroup>(model);
-                var result = _unitOfWork.FaultGroupRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.FaultGroupRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.FaultGroupRepository.Update(data);
+                }
+
                 var list = _unitOfWork.FaultGroupRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

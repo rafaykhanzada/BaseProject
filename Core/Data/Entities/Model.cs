@@ -18,7 +18,7 @@ namespace Core.Data.Entities
         public int? VariantId { get; set; }
         public string? VariantName { get; set; }
 
-        [ForeignKey("Variant")]
+        [ForeignKey("VariantId")]
         public Variant? Variant { get; set; }   
     }
 }

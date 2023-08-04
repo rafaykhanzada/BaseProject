@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Plant>(model);
-                var result = _unitOfWork.PlantRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.PlantRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.PlantRepository.Update(data);
+                }
+                
                 var list = _unitOfWork.PlantRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

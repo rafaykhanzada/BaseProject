@@ -8,18 +8,18 @@ namespace BaseProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ModelController : ControllerBase
+    public class ShiftController : ControllerBase
     {
-        private readonly IModelService _modelService;
-        private readonly IModelRepository _modelRepository;
+        private readonly IShiftService _shiftService;
+        private readonly IShiftRepository _shiftRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
 
-        public ModelController(IModelService modelService, IHttpContextAccessor httpContextAccessor, IModelRepository modelRepository, IMapper mapper)
+        public ShiftController(IShiftService shiftService, IHttpContextAccessor httpContextAccessor, IShiftRepository shiftRepository, IMapper mapper)
         {
-            _modelService = modelService;
+            _shiftService = shiftService;
             _httpContextAccessor = httpContextAccessor;
-            _modelRepository = modelRepository;
+            _shiftRepository = shiftRepository;
             _mapper = mapper;
         }
 
@@ -27,24 +27,24 @@ namespace BaseProject.Controllers
         [HttpGet]
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
-            var list = _modelRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_mapper.Map<List<ModelDTO>>(list));
+            var list = _shiftRepository.PagedList($"", pageIndex, pageSize).List;
+            return Ok(_mapper.Map<List<ShiftDTO>>(list));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_modelService.Get(id));
+            return Ok(_shiftService.Get(id));
         }
 
         // POST api/<CategoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ModelDTO model)
+        public async Task<IActionResult> Post([FromBody] ShiftDTO model)
         {
             var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _modelService.CreateOrUpdate(model));
+                return Ok(await _shiftService.CreateOrUpdate(model));
             return BadRequest();
         }
 

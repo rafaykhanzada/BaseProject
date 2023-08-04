@@ -119,7 +119,7 @@ namespace BaseProject.Infrastructure
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IShiftService, ShiftService>();
             services.AddScoped<IVariantService, VariantService>();
-            services.AddScoped<IZoneService, IZoneService>();
+            services.AddScoped<IZoneService, ZoneService>();
             #endregion
 
 

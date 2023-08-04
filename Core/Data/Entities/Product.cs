@@ -23,7 +23,7 @@ namespace Core.Data.Entities
         public int? PlantId { get; set; }
         public string? PlantName { get; set; }
 
-        [ForeignKey("Plant")]
+        [ForeignKey("PlantId")]
         public virtual Plant? Plant { get; set; }
 
         [JsonIgnore]

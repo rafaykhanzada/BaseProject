@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<CPClass>(model);
-                var result = _unitOfWork.CPClassRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.CPClassRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.CPClassRepository.Update(data);
+                }
+
                 var list = _unitOfWork.CPClassRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

@@ -19,10 +19,10 @@ namespace Core.Data.Entities
         public int? PlantId { get; set; }
         public string? PlantName { get; set; }
 
-        [ForeignKey("Plant")]
+        [ForeignKey("PlantId")]
         public Plant? Plant { get; set; }
 
-        [ForeignKey("Category")]
+        [ForeignKey("CategId")]
         public Category? Category { get; set; }
     }
 }

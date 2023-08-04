@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<AuditType>(model);
-                var result = _unitOfWork.AuditTypeRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.AuditTypeRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.AuditTypeRepository.Update(data);
+                }
+               
                 var list = _unitOfWork.AuditTypeRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

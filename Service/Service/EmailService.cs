@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Email>(model);
-                var result = _unitOfWork.EmailRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.EmailRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.EmailRepository.Update(data);
+                }
+
                 var list = _unitOfWork.EmailRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

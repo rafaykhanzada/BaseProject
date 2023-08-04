@@ -22,6 +22,7 @@ namespace Core.Data.Entities
 
         [JsonIgnore]
         public virtual ICollection<Variant> Variants { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Checkpoints> Checkpoints { get; set; }
     }
 }

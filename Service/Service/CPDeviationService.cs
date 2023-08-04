@@ -32,7 +32,15 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<CPDeviation>(model);
-                var result = _unitOfWork.CPDeviationRepository.Insert(data);
+                if(data.Id == 0) 
+                {
+                    var result = _unitOfWork.CPDeviationRepository.Insert(data);
+                }
+                else 
+                {
+                    var result = _unitOfWork.CPDeviationRepository.Update(data);
+                }
+
                 var list = _unitOfWork.CPDeviationRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;
