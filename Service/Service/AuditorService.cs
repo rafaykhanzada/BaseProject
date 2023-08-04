@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.AuditorRepository.Update(data);
+                    _unitOfWork.AuditorRepository.UpdateVoid(data);
                 }
                 var list = _unitOfWork.AuditorRepository.GetAll();
                 _unitOfWork.Commit();
@@ -106,7 +106,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<AuditorDTO>(_unitOfWork.AuditorRepository.Get(s=> s.Id == id).Select(x=> new {
+                _resultModel.Data = _mapper.Map<AuditorDTO>(_unitOfWork.AuditorRepository.Get(s=> s.Id == id).Select(x=> new Auditor {
                     Id = x.Id,
                     EmpNo = x.EmpNo,
                     EmpName = x.EmpName,

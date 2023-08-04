@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else
                 {
-                    var result = _unitOfWork.CategoryRepository.Update(data);
+                    _unitOfWork.CategoryRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.CategoryRepository.GetAll();
@@ -107,7 +107,12 @@ namespace Service.Service
         {
             try
             {
-
+                _resultModel.Data = _mapper.Map<CategoryDTO>(_unitOfWork.CategoryRepository.Get(x => x.Id == id).Select(s => new Category
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    IsActive = s.IsActive
+                }).FirstOrDefault());
             }
             catch (Exception ex)
             {

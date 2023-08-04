@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.AuditTypeRepository.Update(data);
+                    _unitOfWork.AuditTypeRepository.UpdateVoid(data);
                 }
                
                 var list = _unitOfWork.AuditTypeRepository.GetAll();
@@ -107,7 +107,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<AuditTypeDTO>(_unitOfWork.AuditTypeRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<AuditTypeDTO>(_unitOfWork.AuditTypeRepository.Get(s => s.Id == id).Select(x => new AuditType {
                     Id = x.Id,
                     AudTypeCode = x.AudTypeCode,
                     AudTypeName = x.AudTypeName,

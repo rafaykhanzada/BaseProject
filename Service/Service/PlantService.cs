@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.PlantRepository.Update(data);
+                    _unitOfWork.PlantRepository.UpdateVoid(data);
                 }
                 
                 var list = _unitOfWork.PlantRepository.GetAll();
@@ -107,7 +107,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<PlantDTO>(_unitOfWork.PlantRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<PlantDTO>(_unitOfWork.PlantRepository.Get(s => s.Id == id).Select(x => new Plant {
                     Id = x.Id,
                     PlantCode = x.PlantCode,
                     PlantName = x.PlantName,

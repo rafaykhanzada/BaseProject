@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.CPDeviationRepository.Update(data);
+                    _unitOfWork.CPDeviationRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.CPDeviationRepository.GetAll();
@@ -107,10 +107,10 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CPDeviationDTO>(_unitOfWork.CPDeviationRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<CPDeviationDTO>(_unitOfWork.CPDeviationRepository.Get(s => s.Id == id).Select(x => new CPDeviation {
                     Id = x.Id,
-                    CPCode = x.CPDevCode,
-                    CPDesc = x.CPDevName,
+                    CPDevCode = x.CPDevCode,
+                    CPDevName = x.CPDevName,
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 

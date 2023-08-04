@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.CPClassRepository.Update(data);
+                    _unitOfWork.CPClassRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.CPClassRepository.GetAll();
@@ -107,10 +107,10 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CPClassDTO>(_unitOfWork.CPClassRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<CPClassDTO>(_unitOfWork.CPClassRepository.Get(s => s.Id == id).Select(x => new CPClass {
                     Id = x.Id,
-                    CPCode = x.CPClassCode,
-                    CPDesc = x.CPClassName,
+                    CPClassCode = x.CPClassCode,
+                    CPClassName = x.CPClassName,
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 

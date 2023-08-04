@@ -39,7 +39,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.ZoneRepository.Update(data);
+                    _unitOfWork.ZoneRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.ZoneRepository.GetAll();
@@ -108,7 +108,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ZoneDTO>(_unitOfWork.ZoneRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<ZoneDTO>(_unitOfWork.ZoneRepository.Get(s => s.Id == id).Select(x => new Zone{
                     Id = x.Id,
                     ZoneCode = x.ZoneCode,
                     ZoneName = x.ZoneName,

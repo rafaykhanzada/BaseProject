@@ -39,7 +39,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.CheckpointsRepository.Update(data);
+                    _unitOfWork.CheckpointsRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.CheckpointsRepository.GetAll();
@@ -108,7 +108,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CheckpointsDTO>(_unitOfWork.CheckpointsRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<CheckpointsDTO>(_unitOfWork.CheckpointsRepository.Get(s => s.Id == id).Select(x => new Checkpoints {
                     Id = x.Id,
                     CPCode = x.CPCode,
                     CPDesc = x.CPDesc,

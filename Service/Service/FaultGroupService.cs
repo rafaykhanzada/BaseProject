@@ -39,7 +39,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.FaultGroupRepository.Update(data);
+                    _unitOfWork.FaultGroupRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.FaultGroupRepository.GetAll();
@@ -108,7 +108,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<FaultGroupDTO>(_unitOfWork.FaultGroupRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<FaultGroupDTO>(_unitOfWork.FaultGroupRepository.Get(s => s.Id == id).Select(x => new FaultGroup {
                     Id = x.Id,
                     FGroupCode = x.FGroupCode,
                     FGroupName = x.FGroupName,

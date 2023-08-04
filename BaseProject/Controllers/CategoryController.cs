@@ -35,9 +35,9 @@ namespace BaseProject.Controllers
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            return Ok(_categoryService.Get(id));
         }
 
         // POST api/<CategoryController>

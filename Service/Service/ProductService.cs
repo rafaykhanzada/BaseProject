@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.ProductRepository.Update(data);
+                    _unitOfWork.ProductRepository.UpdateVoid(data);
                 }
                
                 var list = _unitOfWork.ProductRepository.GetAll();
@@ -107,7 +107,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ProductDTO>(_unitOfWork.ProductRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<ProductDTO>(_unitOfWork.ProductRepository.Get(s => s.Id == id).Select(x => new Product {
                     Id = x.Id,
                     ProductCode = x.ProductCode,
                     ProductName = x.ProductName,

@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.ShiftRepository.Update(data);
+                    _unitOfWork.ShiftRepository.UpdateVoid(data);
                 }
                 
                 var list = _unitOfWork.ShiftRepository.GetAll();
@@ -107,7 +107,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ShiftDTO>(_unitOfWork.ShiftRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<ShiftDTO>(_unitOfWork.ShiftRepository.Get(s => s.Id == id).Select(x => new Shift {
                     Id = x.Id,
                     ShiftCode = x.ShiftCode,
                     ShiftName = x.ShiftName,

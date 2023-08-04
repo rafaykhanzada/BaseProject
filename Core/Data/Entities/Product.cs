@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using AutoMapper.Configuration.Annotations;
+using Dapper.Contrib.Extensions;
 
 
 namespace Core.Data.Entities
@@ -27,6 +29,7 @@ namespace Core.Data.Entities
         public virtual Plant? Plant { get; set; }
 
         [JsonIgnore]
+        [IgnoreAttribute]
         public virtual ICollection<Variant> Variants { get; set; }
 
     }

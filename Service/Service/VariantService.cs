@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.VariantRepository.Update(data);
+                    _unitOfWork.VariantRepository.UpdateVoid(data);
                 }
                 
                 var list = _unitOfWork.VariantRepository.GetAll();
@@ -107,9 +107,9 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<VariantDTO>(_unitOfWork.VariantRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<VariantDTO>(_unitOfWork.VariantRepository.Get(s => s.Id == id).Select(x => new Variant {
                     Id = x.Id,
-                    VarintCode = x.VariantCode,
+                    VariantCode = x.VariantCode,
                     VariantName = x.VariantName,
                     ProductId = x.ProductId,
                     ProductName = x.ProductName,

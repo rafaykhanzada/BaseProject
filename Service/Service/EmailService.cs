@@ -38,7 +38,7 @@ namespace Service.Service
                 }
                 else 
                 {
-                    var result = _unitOfWork.EmailRepository.Update(data);
+                    _unitOfWork.EmailRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.EmailRepository.GetAll();
@@ -107,10 +107,10 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<EmailDTO>(_unitOfWork.EmailRepository.Get(s => s.Id == id).Select(x => new {
+                _resultModel.Data = _mapper.Map<EmailDTO>(_unitOfWork.EmailRepository.Get(s => s.Id == id).Select(x => new Email {
                     Id = x.Id,
-                    CPCode = x.EmailCode,
-                    CPDesc = x.EmailName,
+                    EmailCode = x.EmailCode,
+                    EmailName = x.EmailName,
                     CategId = x.CategId,
                     CategName = x.CategName,
                     PlantId = x.PlantId,
