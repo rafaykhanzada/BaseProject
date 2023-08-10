@@ -59,6 +59,28 @@ namespace Service.Service
         {
             try
             {
+                var result = _unitOfWork.VariantRepository.Get(x => x.Id == id).FirstOrDefault();
+                if (result != null)
+                {
+                    if (ValidateForDelete(id))
+                    {
+                        _unitOfWork.VariantRepository.Delete(id);
+                        _unitOfWork.Commit();
+                        _resultModel.Success = true;
+                        _resultModel.Message = "Record deleted sucessfully.";
+
+                    }
+                    else
+                    {
+                        _resultModel.Success = false;
+                        _resultModel.Message = "Record is can't be deleted, it is in used.";
+                    }
+                }
+                else
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = "Record not found.";
+                }
 
             }
             catch (Exception ex)
@@ -127,6 +149,23 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private bool ValidateForDelete(int id)
+        {
+            bool result = true;
+            try
+            {
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.VariantId == id).Count();
+                result = (cnt > 0) ? false : true;
+
+                cnt = _unitOfWork.ModelRepository.Get(x => x.VariantId == id).Count();
+                result = (cnt > 0) ? false : true;
+            }
+            catch (Exception ex)
+            {
+                result = true;
+            }
+            return result;
         }
 
     }

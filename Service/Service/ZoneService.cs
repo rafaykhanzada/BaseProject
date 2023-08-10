@@ -60,13 +60,36 @@ namespace Service.Service
         {
             try
             {
+                
+                var result = _unitOfWork.ZoneRepository.Get(x => x.Id == id).FirstOrDefault();
+                if(result != null)
+                {
+                    if (ValidateForDelete(id)) 
+                    {
+                        _unitOfWork.ZoneRepository.Delete(id);
+                        _unitOfWork.Commit();
+                        _resultModel.Success = true;
+                        _resultModel.Message = "Record deleted sucessfully.";
+
+                    }
+                    else 
+                    {
+                        _resultModel.Success = false;
+                        _resultModel.Message = "Record is can't be deleted, it is in used.";
+                    }
+                }
+                else
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = "Record not found.";
+                }
 
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
-                _resultModel.Message = "Error While Get Record";
+                _resultModel.Message = "Error While Delete Record";
             }
             return _resultModel;
         }
@@ -125,6 +148,21 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private bool ValidateForDelete(int id) 
+        {
+            bool result = true;
+            try 
+            {
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.ZoneId == id).Count();
+                result = (cnt > 0) ? false : true;
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return result;
         }
 
     }
