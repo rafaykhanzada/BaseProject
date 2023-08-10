@@ -17,7 +17,7 @@ namespace BaseProject.Controllers
 
         public AuditorController(IAuditorService auditorService, IHttpContextAccessor httpContextAccessor, IAuditorRepository auditorRepository, IMapper mapper)
         {
-            _auditorService = _auditorService;
+            _auditorService = auditorService;
             _httpContextAccessor = httpContextAccessor;
             _auditorRepository = auditorRepository;
             _mapper = mapper;
