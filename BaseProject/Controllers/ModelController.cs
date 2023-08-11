@@ -50,8 +50,11 @@ namespace BaseProject.Controllers
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, [FromBody] ModelDTO model)
         {
+            if (ModelState.IsValid)
+                return Ok(await _modelService.CreateOrUpdate(model));
+            return BadRequest();
         }
 
         // DELETE api/<CategoryController>/5

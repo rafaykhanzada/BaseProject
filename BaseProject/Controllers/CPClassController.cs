@@ -43,16 +43,19 @@ namespace BaseProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CPClassDTO model)
         {
-            var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
+            //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
                 return Ok(await _cpclassService.CreateOrUpdate(model));
             return BadRequest();
         }
-
+        
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, [FromBody] CPClassDTO model)
         {
+            if (ModelState.IsValid)
+                return Ok(await _cpclassService.CreateOrUpdate(model));
+            return BadRequest();
         }
 
         // DELETE api/<CategoryController>/5
