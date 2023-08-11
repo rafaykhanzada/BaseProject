@@ -20,8 +20,10 @@ namespace Core.Data.Entities
         }
         public string? PlantCode { get; set; }
         public string? PlantName { get; set; }
+        [IgnoreAttribute]
         [JsonIgnore]
         public virtual ICollection<Product> Products { get; set; }
+        [IgnoreAttribute]
         [JsonIgnore]
         public virtual ICollection<Email> Emails { get; set; }
     }
