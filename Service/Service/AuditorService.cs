@@ -33,13 +33,9 @@ namespace Service.Service
             {
                 var data = _mapper.Map<Auditor>(model);
                 if(data.Id == 0) 
-                {
-                    var result = _unitOfWork.AuditorRepository.Insert(data);
-                }
+                    _unitOfWork.AuditorRepository.Insert(data);
                 else 
-                {
                     _unitOfWork.AuditorRepository.UpdateVoid(data);
-                }
                 var list = _unitOfWork.AuditorRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;
