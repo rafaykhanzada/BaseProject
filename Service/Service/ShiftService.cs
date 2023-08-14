@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<Shift>(model);
                 if(data.Id == 0) 
                 {
+                    data.ShiftCode = GetNextCode();
                     var result = _unitOfWork.ShiftRepository.Insert(data);
                 }
                 else 
@@ -138,6 +139,24 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "S";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(ShiftCode, PATINDEX('%[0-9]%', ShiftCode),Len(ShiftCode))),0) + 1 As Code FROM tblShift WHERE PATINDEX('%[-]%',ShiftCode) = 2 AND PATINDEX('%[0-9]%', ShiftCode) > 0)D ";
+                var dpt = _unitOfWork.ShiftRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "S-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "S-0001";
+            }
+            return strCCCode;
         }
 
     }

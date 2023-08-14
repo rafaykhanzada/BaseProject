@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<Product>(model);
                 if(data.Id == 0) 
                 {
+                    data.ProductCode = GetNextCode();
                     var result = _unitOfWork.ProductRepository.Insert(data);
                 }
                 else 
@@ -162,6 +163,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "PR";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(ProductCode, PATINDEX('%[0-9]%', ProductCode),Len(ProductCode))),0) + 1 As Code FROM tblProduct WHERE PATINDEX('%[-]%',ProductCode) = 3 AND PATINDEX('%[0-9]%', ProductCode) > 0)D ";
+                var dpt = _unitOfWork.ProductRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "PR-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "PR-0001";
+            }
+            return strCCCode;
         }
 
     }

@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<Email>(model);
                 if(data.Id == 0) 
                 {
+                    data.EmailCode = GetNextCode();
                     var result = _unitOfWork.EmailRepository.Insert(data);
                 }
                 else 
@@ -139,6 +140,24 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "E";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'\\" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(EmailCode, PATINDEX('%[0-9]%', EmailCode),Len(EmailCode))),0) + 1 As Code FROM tblEmail WHERE PATINDEX('%[-]%',EmailCode) = 2 AND PATINDEX('%[0-9]%', EmailCode) > 0)D ";
+                var dpt = _unitOfWork.EmailRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "E-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "E-0001";
+            }
+            return strCCCode;
         }
     }
 }

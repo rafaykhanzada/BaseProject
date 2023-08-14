@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<Plant>(model);
                 if(data.Id == 0) 
                 {
+                    data.PlantCode = GetNextCode();
                     var result = _unitOfWork.PlantRepository.Insert(data);
                 }
                 else 
@@ -161,6 +162,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "P";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(PlantCode, PATINDEX('%[0-9]%', PlantCode),Len(PlantCode))),0) + 1 As Code FROM tblPlant WHERE PATINDEX('%[-]%',PlantCode) = 2 AND PATINDEX('%[0-9]%', PlantCode) > 0  )D ";
+                var dpt = _unitOfWork.PlantRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "P-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "P-0001";
+            }
+            return strCCCode;
         }
 
     }

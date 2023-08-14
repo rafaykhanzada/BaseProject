@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<CPDeviation>(model);
                 if(data.Id == 0) 
                 {
+                    data.CPDevCode = GetNextCode();
                     var result = _unitOfWork.CPDeviationRepository.Insert(data);
                 }
                 else 
@@ -135,6 +136,24 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "CD";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(CPDevCode, PATINDEX('%[0-9]%', CPDevCode),Len(CPDevCode))),0) + 1 As Code FROM tblCPDeviation WHERE PATINDEX('%[-]%',CPDevCode) = 3 AND PATINDEX('%[0-9]%', CPDevCode) > 0  )D ";
+                var dpt = _unitOfWork.CPDeviationRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "CD-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "CD-0001";
+            }
+            return strCCCode;
         }
     }
 }

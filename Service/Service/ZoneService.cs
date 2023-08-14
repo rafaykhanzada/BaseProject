@@ -35,6 +35,7 @@ namespace Service.Service
                 var data = _mapper.Map<Zone>(model);
                 if (data.Id == 0) 
                 {
+                    data.ZoneCode = GetNextCode();
                     var result =  _unitOfWork.ZoneRepository.Insert(data);
                 }
                 else 
@@ -163,6 +164,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "S";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(ZoneCode, PATINDEX('%[0-9]%', ZoneCode),Len(ZoneCode))),0) + 1 As Code FROM tblZone WHERE PATINDEX('%[-]%',ZoneCode) = 2 AND PATINDEX('%[0-9]%', ZoneCode) > 0)D ";
+                var dpt = _unitOfWork.ZoneRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "S-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "S-0001";
+            }
+            return strCCCode;
         }
 
     }

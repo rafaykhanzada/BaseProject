@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<CPClass>(model);
                 if(data.Id == 0) 
                 {
+                    data.CPClassCode = GetNextCode();
                     var result = _unitOfWork.CPClassRepository.Insert(data);
                 }
                 else 
@@ -159,6 +160,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "CC";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(CPClassCode, PATINDEX('%[0-9]%', CPClassCode),Len(CPClassCode))),0) + 1 As Code FROM tblCPClass WHERE PATINDEX('%[-]%',CPClassCode) = 3 AND PATINDEX('%[0-9]%', CPClassCode) > 0  )D ";
+                var dpt = _unitOfWork.CPClassRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "CD-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "CC-0001";
+            }
+            return strCCCode;
         }
     }
 }

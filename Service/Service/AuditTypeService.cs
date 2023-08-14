@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<AuditType>(model);
                 if(data.Id == 0) 
                 {
+                    data.AudTypeCode = GetNextCode();
                     var result = _unitOfWork.AuditTypeRepository.Insert(data);
                 }
                 else 
@@ -160,6 +161,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "AT";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(AudTypeCode, PATINDEX('%[0-9]%', AudTypeCode),Len(AudTypeCode))),0) + 1 As Code FROM tblAuditType WHERE PATINDEX('%[-]%',AudTypeCode) = 3 AND PATINDEX('%[0-9]%', AudTypeCode) > 0 )D ";
+                var dpt = _unitOfWork.AuditTypeRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "AT-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "AT-0001";
+            }
+            return strCCCode;
         }
 
     }

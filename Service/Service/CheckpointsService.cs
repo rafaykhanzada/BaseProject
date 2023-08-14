@@ -35,6 +35,7 @@ namespace Service.Service
                 var data = _mapper.Map<Checkpoints>(model);
                 if(data.Id == 0) 
                 {
+                    data.CPCode = GetNextCode();
                     var result = _unitOfWork.CheckpointsRepository.Insert(data);
                 }
                 else 
@@ -151,6 +152,25 @@ namespace Service.Service
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
+        }
+
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "CK";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(CPCode, PATINDEX('%[0-9]%', CPCode),Len(CPCode))),0) + 1 As Code FROM tblCheckpoints WHERE PATINDEX('%[-]%',CPCode) = 3 AND PATINDEX('%[0-9]%', CPCode) > 0)D ";
+                var dpt = _unitOfWork.CheckpointsRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "CK-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "CK-0001";
+            }
+            return strCCCode;
         }
     }
 }

@@ -35,6 +35,7 @@ namespace Service.Service
                 var data = _mapper.Map<FaultGroup>(model);
                 if(data.Id == 0) 
                 {
+                    data.FGroupCode = GetNextCode();
                     var result = _unitOfWork.FaultGroupRepository.Insert(data);
                 }
                 else 
@@ -160,6 +161,24 @@ namespace Service.Service
 
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "FG";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(FGroupCode, PATINDEX('%[0-9]%', FGroupCode),Len(FGroupCode))),0) + 1 As Code FROM tblFaultGroup WHERE PATINDEX('%[-]%',FGroupCode) = 3 AND PATINDEX('%[0-9]%', FGroupCode) > 0)D ";
+                var dpt = _unitOfWork.FaultGroupRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "FG-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "FG-0001";
+            }
+            return strCCCode;
         }
     }
 }

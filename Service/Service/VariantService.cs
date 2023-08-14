@@ -34,6 +34,7 @@ namespace Service.Service
                 var data = _mapper.Map<Variant>(model);
                 if(data.Id ==0) 
                 {
+                    data.VariantCode = GetNextCode();
                     var result = _unitOfWork.VariantRepository.Insert(data);
                 }
                 else 
@@ -166,6 +167,24 @@ namespace Service.Service
                 result = true;
             }
             return result;
+        }
+        private string GetNextCode()
+        {
+            string strCCCode = string.Empty;
+            string strPref = "V";
+            try
+            {
+                string sqlQuery = "SELECT FORMAT(Code,'" + strPref + "-0000') FROM ";
+                sqlQuery += "(SELECT IsNull(MAX(SUBSTRING(VariantCode, PATINDEX('%[0-9]%', VariantCode),Len(VariantCode))),0) + 1 As Code FROM tblVariant WHERE PATINDEX('%[-]%',VariantCode) = 2 AND PATINDEX('%[0-9]%', VariantCode) > 0)D ";
+                var dpt = _unitOfWork.VariantRepository.FreeDynamicQuery(sqlQuery);
+
+                strCCCode = (dpt != null) ? ((object[])((System.Collections.Generic.IDictionary<string, object>)dpt).Values)[0].ToString() : "V-0001";
+            }
+            catch (Exception e)
+            {
+                strCCCode = "V-0001";
+            }
+            return strCCCode;
         }
 
     }
