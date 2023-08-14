@@ -15,5 +15,6 @@ namespace Service.IService
         public Task<ResultModel> Login([FromBody] LoginVM model);
         public Task<ResultModel> Register([FromBody] UserVM model);
         public Task<ResultModel> RefreshToken([FromBody] TokenRequestVM model);
+        public Task<ResultModel> ResetPassword(ChangePasswordDTO model);
     }
 }

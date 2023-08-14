@@ -42,5 +42,12 @@ namespace BaseProject.Controllers
                 return BadRequest("Please, provide all required fields");
             return Ok(await _authService.RefreshToken(model));
         }
+        [HttpPost("CangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Please, provide all require fields");
+            return Ok(await _authService.ResetPassword(model));
+        }
     }
 }

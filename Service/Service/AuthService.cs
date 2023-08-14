@@ -18,6 +18,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using CheckPasswordStrength;
 
 namespace Service.Service
 {
@@ -257,5 +258,67 @@ namespace Service.Service
             };
             return response;
         }
+        public async Task<ResultModel> ResetPassword(ChangePasswordDTO model) 
+        {
+            try
+            {
+                User user = await _userManager.FindByIdAsync(model.Id);
+                if(user != null) 
+                {
+                    bool result = await _userManager.CheckPasswordAsync(user, model.Password);
+                    if (result)
+                    {
+                        if (model.NewPassword != model.ConfirmPassword) 
+                        {
+                            _resultModel.Success = false;
+                            _resultModel.Message = "New password should not match with confirm password.";
+                        }
+                        else 
+                        {
+                            var pwdStrenth = model.NewPassword.PasswordStrength();
+                            if(pwdStrenth.Id <= 1) 
+                            {
+                                _resultModel.Success = false;
+                                _resultModel.Message = "Weak password, password must contain upper case,number and special character.";
+                            }
+                            else 
+                            {
+                                var obj = await _userManager.ChangePasswordAsync(user, model.Password, model.NewPassword);
+                                if (obj.Succeeded) 
+                                {
+                                    _resultModel.Success = true;
+                                    _resultModel.Message = "Password reset successfully.";
+                                }
+                                else 
+                                {
+                                    _resultModel.Success = false;
+                                    _resultModel.Message = "Failed to reset.";
+                                }
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        _resultModel.Success = false;
+                        _resultModel.Message = "Invali password.";
+                    }
+                }
+                else 
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = MessageString.NotFound;
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = MessageString.ServerError;
+            }
+            return _resultModel;
+        }
     }
+    
 }
