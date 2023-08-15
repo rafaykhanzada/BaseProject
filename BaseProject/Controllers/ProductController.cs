@@ -28,7 +28,7 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             var list = _productRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_mapper.Map<List<PlantDTO>>(list));
+            return Ok(_mapper.Map<List<ProductDTO>>(list));
         }
 
         // GET api/<CategoryController>/5
@@ -40,20 +40,20 @@ namespace BaseProject.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ProductDTO model)
+        public IActionResult Post([FromBody] ProductDTO model)
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _productService.CreateOrUpdate(model));
+                return Ok(_productService.CreateOrUpdate(model));
             return BadRequest();
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] ProductDTO model)
+        public IActionResult Put(int id, [FromBody] ProductDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _productService.CreateOrUpdate(model));
+                return Ok(_productService.CreateOrUpdate(model));
             return BadRequest();
         }
 

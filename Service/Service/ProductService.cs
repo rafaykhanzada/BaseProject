@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Service.IService;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,21 +28,27 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
-        public async Task<ResultModel> CreateOrUpdate(ProductDTO model)
+        public ResultModel CreateOrUpdate(ProductDTO model)
         {
             try
             {
                 var data = _mapper.Map<Product>(model);
-                if(data.Id == 0) 
+                if (data.PlantId == null || data.PlantId == 0)
+                {
+                    _resultModel.Success = false;
+                    _resultModel.Message = "Plant id is required";
+                    return _resultModel;
+                }
+                if (data.Id == 0)
                 {
                     data.ProductCode = GetNextCode();
                     var result = _unitOfWork.ProductRepository.Insert(data);
                 }
-                else 
+                else
                 {
                     _unitOfWork.ProductRepository.UpdateVoid(data);
                 }
-               
+
                 var list = _unitOfWork.ProductRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;
@@ -56,21 +63,21 @@ namespace Service.Service
             return _resultModel;
         }
 
-        public async Task<ResultModel> Delete(int id)
+        public ResultModel Delete(int id)
         {
             try
             {
                 var result = _unitOfWork.ProductRepository.Get(x => x.Id == id).FirstOrDefault();
                 if (result != null)
                 {
-                    if (ValidateForDelete(id)) 
+                    if (ValidateForDelete(id))
                     {
                         _unitOfWork.ProductRepository.Delete(id);
                         _unitOfWork.Commit();
                         _resultModel.Success = true;
                         _resultModel.Message = "Record deleted sucessfully.";
                     }
-                    else 
+                    else
                     {
                         _resultModel.Success = false;
                         _resultModel.Message = "Record can't be deleted sucessfully, it is in used.";
