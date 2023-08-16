@@ -29,8 +29,8 @@ namespace BaseProject.Controllers
         [HttpGet]
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
-            var list = _categoryRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_mapper.Map<List<CategoryDTO>>(list));
+            //var list = _categoryRepository.PagedList($"", pageIndex, pageSize).List;
+            return Ok(_categoryService.Get(pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5

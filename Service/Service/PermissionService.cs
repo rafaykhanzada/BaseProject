@@ -62,7 +62,7 @@ namespace Service.Service
                     IsActive = true,
                     RoleId = role.Id,
                 });
-                _unitOfWork.Commit();
+                //_unitOfWork.Commit();
 
                 foreach (var item in model.detail)
                 {

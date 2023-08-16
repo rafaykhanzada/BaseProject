@@ -114,7 +114,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                //var list = _auditTypeRepository.PagedList($"", pageIndex, pageSize).List;
+                _resultModel.Data = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.PagedList(pageIndex,pageSize).List);
                 _resultModel.Success = true;
             }
             catch (Exception ex)

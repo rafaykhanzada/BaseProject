@@ -19,10 +19,10 @@ namespace Core.Data.DTOs
         public string? Designation { get; set; }
         public string? UserType { get; set; }
         public string? AuthType { get; set; }
-        public int? DepartmentId { get; set; }
-        public string? DepartmentName { get; set; }
-        public int? LocationId { get; set; }
-        public string? LocationName { get; set; }
+        //public int? DepartmentId { get; set; }
+        //public string? DepartmentName { get; set; }
+        //public int? LocationId { get; set; }
+        //public string? LocationName { get; set; }
         public string? Token { get; set; }
         public string? ProfileImage { get; set; } = "default_user.jpg";
         public bool IsActive { get; set; }

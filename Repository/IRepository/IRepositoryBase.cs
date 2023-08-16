@@ -14,6 +14,7 @@ namespace Repository.IRepository
 {
     public interface IRepositoryBase<T> where T : class
     {
+        T SoftDelete(T entity, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContext);
         bool Add(T entity);
         void Add(T entity, bool LastInsertId = false);
         Task<int> AddAsync(T entity);

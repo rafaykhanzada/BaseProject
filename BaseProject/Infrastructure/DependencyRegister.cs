@@ -83,6 +83,7 @@ namespace BaseProject.Infrastructure
             services.AddMemoryCache();
             #endregion
             #region Repository
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
@@ -99,10 +100,13 @@ namespace BaseProject.Infrastructure
             services.AddScoped<IShiftRepository, ShiftRepository>();
             services.AddScoped<IVariantRepository, VariantRepository>();
             services.AddScoped<IZoneRepository, ZoneRepository>();
+
             #endregion
             #region Services
             services.AddScoped<ResultModel>();
             services.AddScoped<TokenValidationParameters>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IMenuService, MenuService>();
@@ -120,6 +124,8 @@ namespace BaseProject.Infrastructure
             services.AddScoped<IShiftService, ShiftService>();
             services.AddScoped<IVariantService, VariantService>();
             services.AddScoped<IZoneService, ZoneService>();
+            services.AddScoped<IFileService, FileService>();
+
             #endregion
 
 

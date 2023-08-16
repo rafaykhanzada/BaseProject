@@ -25,6 +25,7 @@ namespace UnitofWork
         IShiftRepository ShiftRepository { get; }
         IVariantRepository VariantRepository { get; }
         IZoneRepository ZoneRepository { get; }
+        IUserRepository UserRepository { get; }
 
         void Commit();
     }

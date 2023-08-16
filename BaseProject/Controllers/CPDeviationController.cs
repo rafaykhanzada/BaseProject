@@ -27,8 +27,8 @@ namespace BaseProject.Controllers
         [HttpGet]
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
-            var list = _cpdeviationRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_mapper.Map<List<CPDeviationDTO>>(list));
+            //var list = _cpdeviationRepository.PagedList($"", pageIndex, pageSize).List;
+            return Ok(_cpdeviationService.Get(pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5

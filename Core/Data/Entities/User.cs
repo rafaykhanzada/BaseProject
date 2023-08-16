@@ -24,5 +24,6 @@ namespace Core.Data.Entities
         public string? DeletedBy { get; set; }
         public bool IsActive { get; set; }
         public string? FcmToken { get; set; }
+        //public int? LocationId { get; set; }
     }
 }

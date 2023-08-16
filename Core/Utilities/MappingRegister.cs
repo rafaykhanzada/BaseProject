@@ -26,6 +26,9 @@ namespace Core.Utilities
                 config.CreateMap<Zone, ZoneDTO>().ReverseMap();
                 config.CreateMap<Category, CategoryDTO>().ReverseMap();
                 config.CreateMap<User, UserVM>().ReverseMap();
+                config.CreateMap<Permission, PermissionVM>().ReverseMap();
+                config.CreateMap<Menu, MenuVM>().ReverseMap();
+                config.CreateMap<Role, RoleVM>().ReverseMap();
 
             });
             return mappingConfig;

@@ -31,10 +31,12 @@ namespace UnitofWork
         private IShiftRepository _shiftRepository;
         private IVariantRepository _variantRepository;
         private IZoneRepository _zoneRepository;
+        private IUserRepository _userRepository;
         public UnitOfWork(IDbTransaction transaction)
         {
             _transaction = transaction;
         }
+        public IUserRepository UserRepository => _userRepository ??= new UserRepository(_transaction);
         public IAuditorRepository AuditorRepository => _auditorRepository ??= new AuditorRepository(_transaction);
         public IAuditTypeRepository AuditTypeRepository => _auditTypeRepository ??= new AuditTypeRepository(_transaction);
         public ICheckpointsRepository CheckpointsRepository => _checkpointsRepository ??= new CheckpointsRepository(_transaction);
@@ -86,6 +88,7 @@ namespace UnitofWork
             _shiftRepository = null;
             _variantRepository = null;
             _zoneRepository = null;
+            _userRepository = null;
 
         }
         public void Dispose()

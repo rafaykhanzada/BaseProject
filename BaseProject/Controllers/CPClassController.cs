@@ -28,8 +28,8 @@ namespace BaseProject.Controllers
         [HttpGet]
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
-            var list = _cpclassRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_mapper.Map<List<CPClassDTO>>(list));
+            //var list = _cpclassRepository.PagedList($"", pageIndex, pageSize).List;
+            return Ok(_cpclassService.Get(pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5

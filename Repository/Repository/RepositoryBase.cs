@@ -23,6 +23,41 @@ namespace Repository.Repository
         //    var results = DbConnection.Query<T>(query,transaction:_transaction);
         //    return results;
         //}
+        public T SoftDelete(T entity, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContext)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException($"{nameof(entity)} entity must not be null");
+            }
+            String? contextUser = httpContext.HttpContext?.User.Claims.FirstOrDefault()?.Value;
+
+            try
+            {
+                //dbSet.Attach(entity);
+                //_context.Entry(entity).State = EntityState.Modified;
+                if (entity.GetType().GetProperty("DeletedOn") != null)
+                {
+                    entity.GetType().GetProperty("DeletedOn").SetValue(entity, DateTime.Now);
+                    //_context.Entry(entity).Property("DeletedOn").IsModified = true;
+                }
+                if (entity.GetType().GetProperty("IsActive") != null)
+                {
+                    entity.GetType().GetProperty("IsActive").SetValue(entity, false);
+                    //_context.Entry(entity).Property("IsActive").IsModified = true;
+                }
+                if (entity.GetType().GetProperty("DeletedBy") != null)
+                {
+                    entity.GetType().GetProperty("DeletedBy").SetValue(entity, contextUser);
+                    //_context.Entry(entity).Property("DeletedBy").IsModified = true;
+                }
+                UpdateVoid(entity);
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(entity)}" + ex.Message);
+            }
+        }
         public async void AsyncExecute(string QUERY, object MODEL)
         {
             await DbConnection.ExecuteAsync(QUERY, MODEL, transaction: _transaction);
