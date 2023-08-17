@@ -194,6 +194,13 @@ namespace Service.Service
             #region RoleBasePermission
             //var e = _context.Permission.Where(p=>p.IsAllow==true).Include(d=>d.Control).Include(x => x.Role).Where(x=>x.RoleId==x.Role.Id).ToList();
             var user_role = await _roleManager.FindByIdAsync(role);
+            if (user_role == null) 
+            {
+                _resultModel.Success = false;
+                _resultModel.Message = "Role not fount.";
+                _resultModel.Data = "";
+                return _resultModel;
+            }
             var control_ids = _unitOfWork.PermissionRepository.Get(p => p.RoleId == user_role.Id && p.IsActive == true).Select(s => s.ControlId);
             #endregion
             #region Menus

@@ -71,6 +71,8 @@ namespace Core.Data.DataContext
             builder.Entity<Menu>().ToTable($"tbl{nameof(Menu)}");
             builder.Entity<RefreshToken>().ToTable($"tbl{nameof(RefreshToken)}");
             builder.Entity<Permission>().ToTable($"tbl{nameof(Permission)}");
+            builder.Entity<User>().Property(x => x.UserId).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
+            builder.Entity<Role>().Property(x => x.RoleId).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
         }
     }
 }

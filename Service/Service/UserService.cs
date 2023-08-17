@@ -157,13 +157,14 @@ namespace Service.Service
             return _resultModel;
         }
 
-        public async Task<ResultModel> Delete(string id, IHttpContextAccessor httpContext)
+        public async Task<ResultModel> Delete(string id, IHttpContextAccessor httpContext,string UserId)
         {
             try
             {
-                var data = _unitOfWork.UserRepository .Get(x => x.Id == id && x.DeletedOn == null).FirstOrDefault();
+                var data = _unitOfWork.UserRepository.Get(x => x.Id == id && x.DeletedOn == null).FirstOrDefault();
                 if (data != null)
                 {
+                    data.DeletedBy = UserId;
                     _unitOfWork.UserRepository.SoftDelete(data, httpContext);
                     _unitOfWork.Commit();
                     _resultModel.Message = "Record Deleted Successfully";

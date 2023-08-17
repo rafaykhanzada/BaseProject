@@ -17,6 +17,6 @@ namespace Service.IService
         ResultModel Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null);
         Task<ResultModel> Get(string id);
         Task<ResultModel> CreateOrUpdate(UserVM model, IHttpContextAccessor httpContext, IFormFile? file);
-        Task<ResultModel> Delete(string id, IHttpContextAccessor httpContext);
+        Task<ResultModel> Delete(string id, IHttpContextAccessor httpContext,string UserId);
     }
 }

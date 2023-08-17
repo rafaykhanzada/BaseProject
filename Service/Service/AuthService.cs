@@ -265,9 +265,9 @@ namespace Service.Service
                 User user = await _userManager.FindByIdAsync(model.Id);
                 if(user != null) 
                 {
-                    bool result = await _userManager.CheckPasswordAsync(user, model.Password);
-                    if (result)
-                    {
+                    //bool result = await _userManager.CheckPasswordAsync(user, model.Password);
+                    //if (result)
+                    //{
                         if (model.NewPassword != model.ConfirmPassword) 
                         {
                             _resultModel.Success = false;
@@ -283,7 +283,8 @@ namespace Service.Service
                             }
                             else 
                             {
-                                var obj = await _userManager.ChangePasswordAsync(user, model.Password, model.NewPassword);
+                                string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                                var obj = await _userManager.ResetPasswordAsync(user, token, model.NewPassword); //.ChangePasswordAsync(user, model.Password, model.NewPassword);
                                 if (obj.Succeeded) 
                                 {
                                     _resultModel.Success = true;
@@ -296,12 +297,12 @@ namespace Service.Service
                                 }
                             }
                         }
-                    }
-                    else 
-                    {
-                        _resultModel.Success = false;
-                        _resultModel.Message = "Invali password.";
-                    }
+                    //}
+                    //else 
+                    //{
+                    //    _resultModel.Success = false;
+                    //    _resultModel.Message = "Invali password.";
+                   // }
                 }
                 else 
                 {

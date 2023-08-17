@@ -10,7 +10,7 @@ namespace Core.Data.DTOs
     public class ChangePasswordDTO
     {
         public string? Id { get; set; }
-        public string? Password { get; set; }
+        //public string? Password { get; set; }
         public string? NewPassword { get; set; }
         public string? ConfirmPassword { get; set; }
     }

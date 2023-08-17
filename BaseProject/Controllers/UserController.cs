@@ -7,6 +7,7 @@ namespace BaseProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -33,6 +34,10 @@ namespace BaseProject.Controllers
 
         // DELETE api/<UserController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id) => Ok(await _userService.Delete(id, _httpContext));
+        public async Task<IActionResult> Delete(string id) 
+        {
+            string userid = User.Claims.FirstOrDefault().Value;
+            return Ok(await _userService.Delete(id, _httpContext, userid));
+        } 
     }
 }
