@@ -32,7 +32,9 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Plant>(model);
-                if(data.Id == 0) 
+                data.IsActive = true;
+
+                if (data.Id == 0) 
                 {
                     data.PlantCode = GetNextCode();
                     var result = _unitOfWork.PlantRepository.Insert(data);
@@ -56,7 +58,7 @@ namespace Service.Service
             return _resultModel;
         }
 
-        public async Task<ResultModel> Delete(int id)
+        public ResultModel Delete(int id)
         {
             try
             {
@@ -65,7 +67,7 @@ namespace Service.Service
                 {
                     if (ValidateForDelete(id))
                     {
-                        _unitOfWork.PlantRepository.Delete(id);
+                        _unitOfWork.PlantRepository.SoftDelete(result, null);
                         _unitOfWork.Commit();
                         _resultModel.Success = true;
                         _resultModel.Message = "Record deleted sucessfully.";
@@ -113,13 +115,13 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<PlantDTO>>(_unitOfWork.PlantRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<PlantDTO>(Search);
+                _resultModel.Data = _unitOfWork.PlantRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error:", ex);
-                _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
             }
             return _resultModel;
@@ -136,6 +138,34 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<PlantDTO> data = new();
+                data = _mapper.Map<List<PlantDTO>>(_unitOfWork.PlantRepository.Get(x => x.DeletedOn == null).Select(x => new Plant
+                {
+                    Id = x.Id,
+                    PlantCode = x.PlantCode,
+                    PlantName = x.PlantName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.PlantCode) && s.PlantCode.Contains(Search) || !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search)).ToList();
+                byte[] content = ExcelExportUtility.ExportToExcel<PlantDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

@@ -104,7 +104,9 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<ModelDTO>>(_unitOfWork.ModelRepository.GetAllPaged(pageSize, pageIndex).ToList());
+
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ModelDTO>(Search);
+                _resultModel.Data = _unitOfWork.ModelRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -139,6 +141,36 @@ namespace Service.Service
             }
             return _resultModel;
         }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<ModelDTO> data = new();
+                data = _mapper.Map<List<ModelDTO>>(_unitOfWork.ModelRepository.Get(x => x.DeletedOn == null).Select(x => new Model
+                {
+                    Id = x.Id,
+                    ModelCode = x.ModelCode,
+                    ModelName = x.ModelName,
+                    VariantId = x.VariantId,
+                    VariantName = x.VariantName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ModelCode) && s.ModelCode.Contains(Search) ||!String.IsNullOrEmpty(s.VariantName) && s.VariantName.Contains(Search) || !String.IsNullOrEmpty(s.ModelName) && s.ModelName.Contains(Search)).ToList();
 
+                byte[] content = ExcelExportUtility.ExportToExcel<ModelDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
     }
 }

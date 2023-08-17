@@ -3,6 +3,7 @@ using Core.Data.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Repository.IRepository;
 using Service.IService;
+using Service.Service;
 
 namespace BaseProject.Controllers
 {
@@ -21,6 +22,20 @@ namespace BaseProject.Controllers
             _httpContextAccessor = httpContextAccessor;
             _auditTypeRepository = auditTypeRepository;
             _mapper = mapper;
+        }
+        [HttpGet("export")]
+        public IActionResult Get(string? Search = null)
+        {
+            var result = _audityTypeService.Export(Search);
+            if (result.Success == false)
+                return BadRequest(result);
+            else
+            {
+                string FileName = ControllerContext.ActionDescriptor.ControllerName + "_" + DateTime.Now.ToString("dd/MMM/yyyy HH:mm:ss") + ".xlsx";
+                Response.Headers.Add("Content-Disposition", "attachment;filename=" + FileName);
+                Response.Headers.Add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                return File((byte[])result.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
         }
 
         // GET: api/<CategoryController>

@@ -23,13 +23,13 @@ namespace Repository.Repository
         //    var results = DbConnection.Query<T>(query,transaction:_transaction);
         //    return results;
         //}
-        public T SoftDelete(T entity, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContext)
+        public T SoftDelete(T entity, Microsoft.AspNetCore.Http.IHttpContextAccessor? httpContext)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException($"{nameof(entity)} entity must not be null");
             }
-            String? contextUser = httpContext.HttpContext?.User.Claims.FirstOrDefault()?.Value;
+            String? contextUser =httpContext!=null? httpContext.HttpContext?.User.Claims.FirstOrDefault()?.Value:null ;
 
             try
             {

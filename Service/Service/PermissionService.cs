@@ -63,6 +63,7 @@ namespace Service.Service
                     RoleId = role.Id,
                 });
                 //_unitOfWork.Commit();
+                List<Permission> en = new List<Permission>(); ;
 
                 foreach (var item in model.detail)
                 {
@@ -122,10 +123,8 @@ namespace Service.Service
                                 Route = form.ControlName.ToLower(),
                             });
                         }
-                        IEnumerable<Permission> en = _mapper.Map<List<Permission>>(permission);
-
-                        _unitOfWork.PermissionRepository.Insert(en);
-                        _unitOfWork.Commit();
+                        en.AddRange(_mapper.Map<List<Permission>>(permission));
+                       
                     }
                     else
                     {
@@ -134,6 +133,9 @@ namespace Service.Service
                         return _resultModel;
                     }
                 }
+                _unitOfWork.PermissionRepository.Insert(en);
+                _unitOfWork.Commit();
+                
                 _resultModel.Success = true;
                 _resultModel.Message = "Record Update Successfully";
                 return _resultModel;

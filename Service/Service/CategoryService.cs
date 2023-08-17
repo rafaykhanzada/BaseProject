@@ -113,7 +113,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<CategoryDTO>>(_unitOfWork.CategoryRepository.GetAllPaged(pageSize,pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<Category>(Search);
+                _resultModel.Data = _unitOfWork.CategoryRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -135,6 +136,34 @@ namespace Service.Service
                     Name = s.Name,
                     IsActive = s.IsActive
                 }).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<CategoryDTO> data = new();
+                data = _mapper.Map<List<CategoryDTO>>(_unitOfWork.CategoryRepository.Get(x => x.DeletedOn == null).Select(s => new Category
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    IsActive = s.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => s.Name == Search).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<CategoryDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
+                return _resultModel;
             }
             catch (Exception ex)
             {

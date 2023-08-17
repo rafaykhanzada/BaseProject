@@ -104,7 +104,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<EmailDTO>>(_unitOfWork.EmailRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<EmailDTO>(Search);
+                _resultModel.Data = _unitOfWork.EmailRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -131,6 +132,39 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<EmailDTO> data = new();
+                data = _mapper.Map<List<EmailDTO>>(_unitOfWork.EmailRepository.Get(x => x.DeletedOn == null).Select(x => new Email
+                {
+                    Id = x.Id,
+                    EmailCode = x.EmailCode,
+                    EmailName = x.EmailName,
+                    CategId = x.CategId,
+                    CategName = x.CategName,
+                    PlantId = x.PlantId,
+                    PlantName = x.PlantName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.EmailCode) && s.EmailCode.Contains(Search) || !String.IsNullOrEmpty(s.CategName) && s.CategName.Contains(Search) || !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search) || !String.IsNullOrEmpty(s.EmailName) && s.EmailName.Contains(Search)).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<EmailDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

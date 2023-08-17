@@ -104,7 +104,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<CPDeviationDTO>>(_unitOfWork.CPDeviationRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<CPDeviationDTO>(Search);
+                _resultModel.Data = _unitOfWork.CPDeviationRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -127,6 +128,35 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<CPDeviationDTO> data = new();
+                data = _mapper.Map<List<CPDeviationDTO>>(_unitOfWork.CPDeviationRepository.Get(x => x.DeletedOn == null).Select(x => new CPDeviation
+                {
+                    Id = x.Id,
+                    CPDevCode = x.CPDevCode,
+                    CPDevName = x.CPDevName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.CPDevName) && s.CPDevName.Contains(Search) || !String.IsNullOrEmpty(s.CPDevCode) && s.CPDevCode.Contains(Search)).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<CPDeviationDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

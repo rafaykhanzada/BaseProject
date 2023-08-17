@@ -107,7 +107,9 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<CheckpointsDTO>>(_unitOfWork.CheckpointsRepository.GetAllPaged(pageSize, pageIndex).ToList());
+
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<CheckpointsDTO>(Search);
+                _resultModel.Data = _unitOfWork.CheckpointsRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -143,6 +145,48 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<CheckpointsDTO> data = new();
+                data =  _mapper.Map<List<CheckpointsDTO>>(_unitOfWork.CheckpointsRepository.Get(x => x.DeletedOn == null).Select(x => new Checkpoints
+                {
+                    Id = x.Id,
+                    CPCode = x.CPCode,
+                    CPDesc = x.CPDesc,
+                    CPOrderNo = x.CPOrderNo,
+                    Standard = x.Standard,
+                    AudTypeId = x.AudTypeId,
+                    AudTypeName = x.AudTypeName,
+                    VariantId = x.VariantId,
+                    VariantName = x.VariantName,
+                    ZoneId = x.ZoneId,
+                    ZoneName = x.ZoneName,
+                    FGroupId = x.FGroupId,
+                    FGroupName = x.FGroupName,
+                    CPClassId = x.CPClassId,
+                    CPClassName = x.CPClassName,
+                    DWeightage = x.DWeightage,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => s.AudTypeName == Search || s.CPCode == Search|| s.CPDesc == Search|| s.CPOrderNo.ToString() == Search|| s.Standard == Search|| s.VariantName == Search|| s.ZoneName == Search|| s.FGroupName == Search|| s.CPClassName == Search|| s.DWeightage.ToString() == Search).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<CheckpointsDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

@@ -100,7 +100,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<AuditorDTO>>(_unitOfWork.AuditorRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "": DBUtil.GenerateSearchQuery<Auditor>(Search);
+                _resultModel.Data = _unitOfWork.AuditorRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -123,6 +124,35 @@ namespace Service.Service
                     IsActive = x.IsActive
                 } ).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<AuditorDTO> data = new();
+                data = _mapper.Map<List<AuditorDTO>>(_unitOfWork.AuditorRepository.Get(x=>x.DeletedOn == null).Select(x => new Auditor
+                {
+                    Id = x.Id,
+                    EmpNo = x.EmpNo,
+                    EmpName = x.EmpName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => s.EmpName == Search || s.EmpNo == Search).ToList();
+                
+                byte[] content = ExcelExportUtility.ExportToExcel<AuditorDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

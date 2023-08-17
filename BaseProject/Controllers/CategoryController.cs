@@ -3,6 +3,7 @@ using Core.Data.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Repository.IRepository;
 using Service.IService;
+using Service.Service;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -32,7 +33,20 @@ namespace BaseProject.Controllers
             //var list = _categoryRepository.PagedList($"", pageIndex, pageSize).List;
             return Ok(_categoryService.Get(pageIndex,pageSize,Search));
         }
-
+        [HttpGet("export")]
+        public IActionResult Get(string? Search = null)
+        {
+            var result = _categoryService.Export(Search);
+            if (result.Success == false)
+                return BadRequest(result);
+            else
+            {
+                string FileName = ControllerContext.ActionDescriptor.ControllerName + "_" + DateTime.Now.ToString("dd/MMM/yyyy HH:mm:ss") + ".xlsx";
+                Response.Headers.Add("Content-Disposition", "attachment;filename=" + FileName);
+                Response.Headers.Add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                return File((byte[])result.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+        }
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)

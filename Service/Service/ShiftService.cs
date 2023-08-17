@@ -107,7 +107,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<ShiftDTO>>(_unitOfWork.ShiftRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ShiftDTO>(Search);
+                _resultModel.Data = _unitOfWork.ShiftRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -130,6 +131,34 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<ShiftDTO> data = new();
+                data = _mapper.Map<List<ShiftDTO>>(_unitOfWork.ShiftRepository.Get(x => x.DeletedOn == null).Select(x => new Shift
+                {
+                    Id = x.Id,
+                    ShiftCode = x.ShiftCode,
+                    ShiftName = x.ShiftName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ShiftCode) && s.ShiftCode.Contains(Search) || !String.IsNullOrEmpty(s.ShiftName) && s.ShiftName.Contains(Search)).ToList();
+                byte[] content = ExcelExportUtility.ExportToExcel<ShiftDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

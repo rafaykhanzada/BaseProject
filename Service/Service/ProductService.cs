@@ -121,7 +121,9 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.GetAllPaged(pageSize, pageIndex).ToList());
+
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ProductDTO>(Search);
+                _resultModel.Data = _unitOfWork.ProductRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -146,6 +148,36 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<ProductDTO> data = new();
+                data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.Get(x => x.DeletedOn == null).Select(x => new Product
+                {
+                    Id = x.Id,
+                    ProductCode = x.ProductCode,
+                    ProductName = x.ProductName,
+                    PlantId = x.PlantId,
+                    PlantName = x.PlantName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ProductCode) && s.ProductCode.Contains(Search) || !String.IsNullOrEmpty(s.ProductName) && s.ProductName.Contains(Search)|| !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search)).ToList();
+                byte[] content = ExcelExportUtility.ExportToExcel<ProductDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

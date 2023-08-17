@@ -26,7 +26,7 @@ options.AddDefaultPolicy(builder =>
 }));
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.WebHost.UseUrls("https://192.168.1.110:7153/");
+//builder.WebHost.UseUrls("https://192.168.19.23:5001/");
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped((s) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -55,7 +55,7 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
-app.UseGloablCustomMiddleware();
+//app.UseGloablCustomMiddleware();
 //Seed the database
 //AppDbInitializer.SeedRolesToDb(app).Wait();
 

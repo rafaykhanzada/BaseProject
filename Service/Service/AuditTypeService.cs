@@ -27,6 +27,7 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
+
         public async Task<ResultModel> CreateOrUpdate(AuditTypeDTO model)
         {
             try
@@ -114,8 +115,8 @@ namespace Service.Service
         {
             try
             {
-                //var list = _auditTypeRepository.PagedList($"", pageIndex, pageSize).List;
-                _resultModel.Data = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.PagedList(pageIndex,pageSize).List);
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<AuditType>(Search);
+                _resultModel.Data = _unitOfWork.AuditTypeRepository.PagedList(query, pageIndex, pageSize); 
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -138,6 +139,35 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<AuditTypeDTO> data = new();
+                data  = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.Get(x => x.DeletedOn == null).Select(x => new AuditType
+                {
+                    Id = x.Id,
+                    AudTypeCode = x.AudTypeCode,
+                    AudTypeName = x.AudTypeName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => s.AudTypeName == Search || s.AudTypeCode == Search).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<AuditTypeDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

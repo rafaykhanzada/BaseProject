@@ -116,7 +116,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<ZoneDTO>>(_unitOfWork.ZoneRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ZoneDTO>(Search);
+                _resultModel.Data = _unitOfWork.ZoneRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -140,6 +141,35 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<ZoneDTO> data = new();
+                data = _mapper.Map<List<ZoneDTO>>(_unitOfWork.ZoneRepository.Get(x => x.DeletedOn == null).Select(x => new Zone
+                {
+                    Id = x.Id,
+                    ZoneCode = x.ZoneCode,
+                    ZoneName = x.ZoneName,
+                    IsStation = x.IsStation,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ZoneCode) && s.ZoneCode.Contains(Search) || !String.IsNullOrEmpty(s.ZoneName) && s.ZoneName.Contains(Search)).ToList();
+                byte[] content = ExcelExportUtility.ExportToExcel<ZoneDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

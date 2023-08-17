@@ -114,7 +114,8 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<List<FaultGroupDTO>>(_unitOfWork.FaultGroupRepository.GetAllPaged(pageSize, pageIndex).ToList());
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<FaultGroupDTO>(Search);
+                _resultModel.Data = _unitOfWork.FaultGroupRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -137,6 +138,35 @@ namespace Service.Service
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
+                return _resultModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error:", ex);
+                _resultModel.Success = false;
+                _resultModel.Message = "Error While Get Record";
+            }
+            return _resultModel;
+        }
+        public ResultModel Export(string? Search = null)
+        {
+            try
+            {
+                List<FaultGroupDTO> data = new();
+                data = _mapper.Map<List<FaultGroupDTO>>(_unitOfWork.FaultGroupRepository.Get(x => x.DeletedOn == null).Select(x => new FaultGroup
+                {
+                    Id = x.Id,
+                    FGroupCode = x.FGroupCode,
+                    FGroupName = x.FGroupName,
+                    IsActive = x.IsActive
+                }).ToList());
+                if (!String.IsNullOrEmpty(Search))
+                    data = data.Where(s => !String.IsNullOrEmpty(s.FGroupCode) && s.FGroupCode.Contains(Search) || !String.IsNullOrEmpty(s.FGroupName) && s.FGroupName.Contains(Search)).ToList();
+
+                byte[] content = ExcelExportUtility.ExportToExcel<FaultGroupDTO>(data);
+                _resultModel.Success = true;
+                _resultModel.Data = content;
+                _resultModel.Message = $"Total Items Exported {data.Count}";
                 return _resultModel;
             }
             catch (Exception ex)

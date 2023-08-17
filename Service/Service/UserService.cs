@@ -76,7 +76,7 @@ namespace Service.Service
                     data.Id = Guid.NewGuid().ToString();
                     var result = await _userManager.CreateAsync(data, model.Password);
                     if (!result.Succeeded)
-                        _resultModel.Message = result.Errors.FirstOrDefault().ToString();
+                        _resultModel.Message = String.Join("\n", result.Errors.Select(x=>x.Description.ToString()));
                     _resultModel.Message = "Record Create Successfully.";
                     var roles = await _userManager.GetRolesAsync(data);
                     var ee = await _userManager.AddToRolesAsync(data, model.Roles);
@@ -165,7 +165,7 @@ namespace Service.Service
                 if (data != null)
                 {
                     data.DeletedBy = UserId;
-                    _unitOfWork.UserRepository.SoftDelete(data, httpContext);
+                    _unitOfWork.UserRepository.Delete(data);
                     _unitOfWork.Commit();
                     _resultModel.Message = "Record Deleted Successfully";
                     _resultModel.Success = true;
