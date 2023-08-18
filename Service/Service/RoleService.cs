@@ -23,9 +23,9 @@ namespace Service.Service
         private readonly ILogger<Role> _logger;
         private readonly ResultModel _resultModel;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Users> _userManager;
 
-        public RoleService(RoleManager<Role> roleManager, IMapper mapper, ILogger<Role> logger, ResultModel resultModel, IUnitOfWork unitOfWork, UserManager<User> userManager)
+        public RoleService(RoleManager<Role> roleManager, IMapper mapper, ILogger<Role> logger, ResultModel resultModel, IUnitOfWork unitOfWork, UserManager<Users> userManager)
         {
             _roleManager = roleManager;
             _mapper = mapper;
@@ -35,7 +35,7 @@ namespace Service.Service
             _userManager = userManager;
         }
 
-        public async Task<ResultModel> AddToRolesAsync(User user, IList<string> roles)
+        public async Task<ResultModel> AddToRolesAsync(Users user, IList<string> roles)
         {
             try
             {
@@ -210,7 +210,7 @@ namespace Service.Service
             return _resultModel;
         }
 
-        public async Task<ResultModel> RemoveFromRolesAsync(User user, IList<string> roles)
+        public async Task<ResultModel> RemoveFromRolesAsync(Users user, IList<string> roles)
         {
             try
             {

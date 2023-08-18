@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IZoneRepository : IRepositoryBase<Zone>
+    public interface IZoneRepository : IRepositoryBase<ZoneOrStations>
     {
     }
 }

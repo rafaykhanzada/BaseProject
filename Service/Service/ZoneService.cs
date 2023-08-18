@@ -18,10 +18,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Zone> _logger;
+        private readonly ILogger<ZoneOrStations> _logger;
         private ResultModel _resultModel;
 
-        public ZoneService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Zone> logger, ResultModel resultModel)
+        public ZoneService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ZoneOrStations> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -32,10 +32,10 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Zone>(model);
-                if (data.Id == 0) 
+                var data = _mapper.Map<ZoneOrStations>(model);
+                if (data.ZoneOrStationId == 0) 
                 {
-                    data.ZoneCode = GetNextCode();
+                    data.Code = GetNextCode();
                     var result =  _unitOfWork.ZoneRepository.Insert(data);
                 }
                 else 
@@ -62,7 +62,7 @@ namespace Service.Service
             try
             {
                 
-                var result = _unitOfWork.ZoneRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.ZoneRepository.Get(x => x.ZoneOrStationId == id).FirstOrDefault();
                 if(result != null)
                 {
                     if (ValidateForDelete(id)) 
@@ -133,13 +133,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ZoneDTO>(_unitOfWork.ZoneRepository.Get(s => s.Id == id).Select(x => new Zone{
-                    Id = x.Id,
-                    ZoneCode = x.ZoneCode,
-                    ZoneName = x.ZoneName,
-                    IsStation = x.IsStation,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<ZoneDTO>(_unitOfWork.ZoneRepository.Get(s => s.ZoneOrStationId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -156,16 +150,9 @@ namespace Service.Service
             try
             {
                 List<ZoneDTO> data = new();
-                data = _mapper.Map<List<ZoneDTO>>(_unitOfWork.ZoneRepository.Get(x => x.DeletedOn == null).Select(x => new Zone
-                {
-                    Id = x.Id,
-                    ZoneCode = x.ZoneCode,
-                    ZoneName = x.ZoneName,
-                    IsStation = x.IsStation,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<ZoneDTO>>(_unitOfWork.ZoneRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.ZoneCode) && s.ZoneCode.Contains(Search) || !String.IsNullOrEmpty(s.ZoneName) && s.ZoneName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Code) && s.Code.Contains(Search) || !String.IsNullOrEmpty(s.ZoneOrStation) && s.ZoneOrStation.Contains(Search)).ToList();
                 byte[] content = ExcelExportUtility.ExportToExcel<ZoneDTO>(data);
                 _resultModel.Success = true;
                 _resultModel.Data = content;
@@ -182,18 +169,15 @@ namespace Service.Service
         }
         private bool ValidateForDelete(int id) 
         {
-            bool result = true;
             try 
             {
-                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.ZoneId == id).Count();
-                result = (cnt > 0) ? false : true;
-
+                return _unitOfWork.CheckpointsRepository.Get(x => x.FkZoneOrStationId == id).Any();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
+                _logger.LogError("Error:", ex);
+                return false;
             }
-            return result;
         }
         private string GetNextCode()
         {

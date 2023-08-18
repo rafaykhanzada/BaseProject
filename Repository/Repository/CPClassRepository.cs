@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class CPClassRepository : RepositoryBase<CPClass>, ICPClassRepository
+    public class CPClassRepository : RepositoryBase<CheckpointClasses>, ICPClassRepository
     {
         public CPClassRepository(IDbTransaction transaction) : base(transaction) 
         {

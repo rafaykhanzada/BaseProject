@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class ShiftRepository : RepositoryBase<Shift>,IShiftRepository
+    public class ShiftRepository : RepositoryBase<Shifts>,IShiftRepository
     {
         public ShiftRepository(IDbTransaction transaction) : base(transaction) 
         { 

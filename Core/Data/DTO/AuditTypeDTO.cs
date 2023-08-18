@@ -8,9 +8,9 @@ namespace Core.Data.DTO
 {
     public class AuditTypeDTO
     {
-        public int? Id { get; set; }
+        public int AuditTypeId { get; set; }
+        public string? AuditType { get; set; }
         public string? AudTypeCode { get; set; }
-        public string? AudTypeName { get; set; }
         public bool IsActive { get; set; }
     }
 }

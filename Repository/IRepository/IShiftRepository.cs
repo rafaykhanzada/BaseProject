@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IShiftRepository : IRepositoryBase<Shift>
+    public interface IShiftRepository : IRepositoryBase<Shifts>
     {
     }
 }

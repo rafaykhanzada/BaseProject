@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class FaultGroupRepository : RepositoryBase<FaultGroup>,IFaultGroupRepository
+    public class FaultGroupRepository : RepositoryBase<FaultGroups>,IFaultGroupRepository
     {
         public FaultGroupRepository(IDbTransaction transaction) : base(transaction) 
         { 

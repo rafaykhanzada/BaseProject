@@ -6,18 +6,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using AutoMapper.Configuration.Annotations;
-using Dapper.Contrib.Extensions;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Core.Data.Entities
 {
-    public class CPClass : HasIdDate
+    public class CheckpointClasses: HasDate
     {
-        public CPClass() 
+        public CheckpointClasses() 
         {
             Checkpoints = new HashSet<Checkpoints>();
         }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CheckpointClassId { get; set; }
+        public string? Class { get; set; }
         public string? CPClassCode { get; set; }
-        public string? CPClassName { get; set; }
         [JsonIgnore]
         [IgnoreAttribute]
         public virtual ICollection<Checkpoints> Checkpoints { get; set; }

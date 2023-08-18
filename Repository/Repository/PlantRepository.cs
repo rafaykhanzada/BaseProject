@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class PlantRepository : RepositoryBase<Plant>, IPlantRepository
+    public class PlantRepository : RepositoryBase<Plants>, IPlantRepository
     {
         public PlantRepository(IDbTransaction transaction) : base(transaction)
         {

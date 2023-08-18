@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Variant> _logger;
+        private readonly ILogger<Variants> _logger;
         private ResultModel _resultModel;
 
-        public VariantService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Variant> logger, ResultModel resultModel)
+        public VariantService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Variants> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,8 +31,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Variant>(model);
-                if(data.Id ==0) 
+                var data = _mapper.Map<Variants>(model);
+                if(data.VariantId ==0) 
                 {
                     data.VariantCode = GetNextCode();
                     var result = _unitOfWork.VariantRepository.Insert(data);
@@ -60,7 +60,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.VariantRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.VariantRepository.Get(x => x.VariantId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id))
@@ -131,16 +131,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<VariantDTO>(_unitOfWork.VariantRepository.Get(s => s.Id == id).Select(x => new Variant {
-                    Id = x.Id,
-                    VariantCode = x.VariantCode,
-                    VariantName = x.VariantName,
-                    ProductId = x.ProductId,
-                    ProductName = x.ProductName,
-                    AudTypeId = x.AudTypeId,
-                    AudTypeName = x.AudTypeName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<VariantDTO>(_unitOfWork.VariantRepository.Get(s => s.VariantId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -157,17 +148,7 @@ namespace Service.Service
             try
             {
                 List<VariantDTO> data = new();
-                data = _mapper.Map<List<VariantDTO>>(_unitOfWork.VariantRepository.Get(x => x.DeletedOn == null).Select(x => new Variant
-                {
-                    Id = x.Id,
-                    VariantCode = x.VariantCode,
-                    VariantName = x.VariantName,
-                    ProductId = x.ProductId,
-                    ProductName = x.ProductName,
-                    AudTypeId = x.AudTypeId,
-                    AudTypeName = x.AudTypeName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<VariantDTO>>(_unitOfWork.VariantRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
                     data = data.Where(s => !String.IsNullOrEmpty(s.VariantCode) && s.VariantCode.Contains(Search) || !String.IsNullOrEmpty(s.ProductName) && s.ProductName.Contains(Search)).ToList();
                 byte[] content = ExcelExportUtility.ExportToExcel<VariantDTO>(data);
@@ -189,10 +170,10 @@ namespace Service.Service
             bool result = true;
             try
             {
-                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.VariantId == id).Count();
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.FkVariantId == id).Count();
                 result = (cnt > 0) ? false : true;
 
-                cnt = _unitOfWork.ModelRepository.Get(x => x.VariantId == id).Count();
+                cnt = _unitOfWork.ModelRepository.Get(x => x.FkVariantId == id).Count();
                 result = (cnt > 0) ? false : true;
             }
             catch (Exception ex)

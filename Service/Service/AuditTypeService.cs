@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<AuditType> _logger;
+        private readonly ILogger<AuditTypes> _logger;
         private ResultModel _resultModel;
 
-        public AuditTypeService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AuditType> logger, ResultModel resultModel)
+        public AuditTypeService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AuditTypes> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -32,8 +32,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<AuditType>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<AuditTypes>(model);
+                if(data.AuditTypeId == 0) 
                 {
                     data.AudTypeCode = GetNextCode();
                     var result = _unitOfWork.AuditTypeRepository.Insert(data);
@@ -61,7 +61,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.AuditTypeRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.AuditTypeRepository.Get(x => x.AuditTypeId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id))
@@ -115,7 +115,7 @@ namespace Service.Service
         {
             try
             {
-                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<AuditType>(Search);
+                var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<AuditTypes>(Search);
                 _resultModel.Data = _unitOfWork.AuditTypeRepository.PagedList(query, pageIndex, pageSize); 
                 _resultModel.Success = true;
             }
@@ -132,10 +132,10 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<AuditTypeDTO>(_unitOfWork.AuditTypeRepository.Get(s => s.Id == id).Select(x => new AuditType {
-                    Id = x.Id,
+                _resultModel.Data = _mapper.Map<AuditTypeDTO>(_unitOfWork.AuditTypeRepository.Get(s => s.AuditTypeId == id).Select(x => new AuditTypes {
+                    AuditTypeId = x.AuditTypeId,
                     AudTypeCode = x.AudTypeCode,
-                    AudTypeName = x.AudTypeName,
+                    AuditType = x.AuditType,
                     IsActive = x.IsActive
                 }).FirstOrDefault());
 
@@ -154,15 +154,15 @@ namespace Service.Service
             try
             {
                 List<AuditTypeDTO> data = new();
-                data  = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.Get(x => x.DeletedOn == null).Select(x => new AuditType
+                data  = _mapper.Map<List<AuditTypeDTO>>(_unitOfWork.AuditTypeRepository.Get(x => x.DeletedOn == null).Select(x => new AuditTypes
                 {
-                    Id = x.Id,
+                    AuditTypeId = x.AuditTypeId,
                     AudTypeCode = x.AudTypeCode,
-                    AudTypeName = x.AudTypeName,
+                    AuditType = x.AuditType,
                     IsActive = x.IsActive
                 }).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => s.AudTypeName == Search || s.AudTypeCode == Search).ToList();
+                    data = data.Where(s =>!String.IsNullOrEmpty(s.AuditType) && s.AuditType.Contains(Search) || !String.IsNullOrEmpty(s.AudTypeCode) && s.AudTypeCode.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<AuditTypeDTO>(data);
                 _resultModel.Success = true;
@@ -183,7 +183,7 @@ namespace Service.Service
             bool result = true;
             try
             {
-                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.AudTypeId == id).Count();
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.CheckpointId == id).Count();
                 result = (cnt > 0) ? false : true;
 
             }

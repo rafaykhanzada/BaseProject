@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface ICPDeviationRepository : IRepositoryBase<CPDeviation>
+    public interface ICPDeviationRepository : IRepositoryBase<CheckpointDeviations>
     {
     }
 }

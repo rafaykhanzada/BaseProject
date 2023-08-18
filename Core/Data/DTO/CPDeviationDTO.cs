@@ -8,9 +8,9 @@ namespace Core.Data.DTO
 {
     public class CPDeviationDTO
     {
-        public int Id { get; set; }
+        public int CheckpointDeviationId { get; set; }
+        public string? Deviation { get; set; }
         public string? CPDevCode { get; set; }
-        public string? CPDevName { get; set; }
         public bool IsActive { get; set; }
     }
 }

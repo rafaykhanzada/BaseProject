@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class VariantRepository : RepositoryBase<Variant>,IVariantRepository
+    public class VariantRepository : RepositoryBase<Variants>,IVariantRepository
     {
         public VariantRepository(IDbTransaction transaction) :base(transaction) 
         { 

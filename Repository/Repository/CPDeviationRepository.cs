@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class CPDeviationRepository : RepositoryBase<CPDeviation>,ICPDeviationRepository
+    public class CPDeviationRepository : RepositoryBase<CheckpointDeviations>,ICPDeviationRepository
     {
         public CPDeviationRepository(IDbTransaction transaction) : base(transaction) 
         {

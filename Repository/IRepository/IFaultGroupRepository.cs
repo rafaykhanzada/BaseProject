@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IFaultGroupRepository : IRepositoryBase<FaultGroup>
+    public interface IFaultGroupRepository : IRepositoryBase<FaultGroups>
     {
     }
 }

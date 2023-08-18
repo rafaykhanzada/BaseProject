@@ -8,25 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using AutoMapper.Configuration.Annotations;
-using Dapper.Contrib.Extensions;
 
 namespace Core.Data.Entities
 {
-    public class AuditType : HasIdDate
+    public class ZoneOrStations : HasDate
     {
-        public AuditType()
+        public ZoneOrStations()
         {
-            Variants = new HashSet<Variant>();
             Checkpoints = new HashSet<Checkpoints>();
         }
-        public string? AudTypeCode { get; set; }
-        public string? AudTypeName { get; set; }
-
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ZoneOrStationId { get; set; }
+        public string? ZoneOrStation { get; set; }
+        public bool? IsStation { get; set; }
+        public string? Code { get; set; }
         [JsonIgnore]
         [IgnoreAttribute]
-        public virtual ICollection<Variant> Variants { get; set; }
-        [JsonIgnore]
-        [IgnoreAttribute]
-        public virtual ICollection<Checkpoints> Checkpoints { get; set; }
+        public virtual ICollection<Checkpoints>? Checkpoints { get; set; }
     }
 }

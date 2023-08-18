@@ -8,22 +8,22 @@ namespace Core.Data.DTO
 {
     public class CheckpointsDTO
     {
-        public int? Id { get; set; }
-        public string? CPCode { get; set; }
-        public string? CPDesc { get; set; }
-        public int CPOrderNo { get; set; }
+        public int? CheckpointId { get; set; }
+        public string? Description { get; set; }
         public string? Standard { get; set; }
-        public int? AudTypeId { get; set; }
-        public string? AudTypeName { get; set; }
-        public int? VariantId { get; set; }
-        public string? VariantName { get; set; }
-        public int? ZoneId { get; set; }
-        public string? ZoneName { get; set; }
-        public int? FGroupId { get; set; }
-        public string? FGroupName { get; set; }
-        public int? CPClassId { get; set; }
-        public string? CPClassName { get; set; }
-        public decimal? DWeightage { get; set; }
+        public int? FkVariantId { get; set; }
+        public string? Variant { get; set; }
+        public int? FkAuditTypeId { get; set; }
+        public string? AuditType { get; set; }
+        public int? FkZoneOrStationId { get; set; }
+        public string? ZoneOrStation { get; set; }
+        public int? FkClassId { get; set; }
+        public string? Class { get; set; }
+        public decimal? DefectWeightage { get; set; }
+        public int? FkFaultGroupId { get; set; }
+        public string? FaultGroup { get; set; }
+        public string? CPCode { get; set; }
+        public int OrderNo { get; set; }
         public bool IsActive { get; set; }
 
     }

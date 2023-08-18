@@ -33,7 +33,7 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Checkpoints>(model);
-                if(data.Id == 0) 
+                if(data.CheckpointId == 0) 
                 {
                     data.CPCode = GetNextCode();
                     var result = _unitOfWork.CheckpointsRepository.Insert(data);
@@ -61,7 +61,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.CheckpointsRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.CheckpointsRepository.Get(x => x.CheckpointId == id).FirstOrDefault();
                 if (result != null)
                 {
 
@@ -109,7 +109,18 @@ namespace Service.Service
             {
 
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<CheckpointsDTO>(Search);
-                _resultModel.Data = _unitOfWork.CheckpointsRepository.PagedList(query, pageIndex, pageSize);
+                var data = _unitOfWork.CheckpointsRepository.PagedList(query, pageIndex, pageSize);
+                var mapperlist = _mapper.Map<List<CheckpointsDTO>>(data.List);
+                foreach (var item in mapperlist)
+                {
+                    item.Variant = _unitOfWork.VariantRepository.Get(x => x.VariantId == item.FkVariantId).FirstOrDefault()!.Variant;
+                    item.AuditType = _unitOfWork.AuditTypeRepository.Get(x => x.AuditTypeId == item.FkAuditTypeId).FirstOrDefault()!.AuditType;
+                    item.ZoneOrStation = _unitOfWork.ZoneRepository.Get(x => x.ZoneOrStationId == item.FkZoneOrStationId).FirstOrDefault()!.ZoneOrStation;
+                    item.Class = _unitOfWork.CPClassRepository.Get(x => x.CheckpointClassId == item.FkClassId).FirstOrDefault()!.Class;
+                    item.FaultGroup = _unitOfWork.FaultGroupRepository.Get(x => x.FaultGroupId == item.FkFaultGroupId).FirstOrDefault()!.FaultGroup;
+                }
+                data.List = mapperlist;
+                _resultModel.Data = data;
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -125,25 +136,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CheckpointsDTO>(_unitOfWork.CheckpointsRepository.Get(s => s.Id == id).Select(x => new Checkpoints {
-                    Id = x.Id,
-                    CPCode = x.CPCode,
-                    CPDesc = x.CPDesc,
-                    CPOrderNo = x.CPOrderNo,
-                    Standard = x.Standard,
-                    AudTypeId = x.AudTypeId,
-                    AudTypeName = x.AudTypeName,
-                    VariantId = x.VariantId,
-                    VariantName = x.VariantName,
-                    ZoneId = x.ZoneId,
-                    ZoneName = x.ZoneName,
-                    FGroupId = x.FGroupId,
-                    FGroupName = x.FGroupName,
-                    CPClassId = x.CPClassId,
-                    CPClassName = x.CPClassName,
-                    DWeightage = x.DWeightage,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<CheckpointsDTO>(_unitOfWork.CheckpointsRepository.Get(s => s.CheckpointId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -160,28 +153,9 @@ namespace Service.Service
             try
             {
                 List<CheckpointsDTO> data = new();
-                data =  _mapper.Map<List<CheckpointsDTO>>(_unitOfWork.CheckpointsRepository.Get(x => x.DeletedOn == null).Select(x => new Checkpoints
-                {
-                    Id = x.Id,
-                    CPCode = x.CPCode,
-                    CPDesc = x.CPDesc,
-                    CPOrderNo = x.CPOrderNo,
-                    Standard = x.Standard,
-                    AudTypeId = x.AudTypeId,
-                    AudTypeName = x.AudTypeName,
-                    VariantId = x.VariantId,
-                    VariantName = x.VariantName,
-                    ZoneId = x.ZoneId,
-                    ZoneName = x.ZoneName,
-                    FGroupId = x.FGroupId,
-                    FGroupName = x.FGroupName,
-                    CPClassId = x.CPClassId,
-                    CPClassName = x.CPClassName,
-                    DWeightage = x.DWeightage,
-                    IsActive = x.IsActive
-                }).ToList());
+                data =  _mapper.Map<List<CheckpointsDTO>>(_unitOfWork.CheckpointsRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => s.AudTypeName == Search || s.CPCode == Search|| s.CPDesc == Search|| s.CPOrderNo.ToString() == Search|| s.Standard == Search|| s.VariantName == Search|| s.ZoneName == Search|| s.FGroupName == Search|| s.CPClassName == Search|| s.DWeightage.ToString() == Search).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Description) && s.Description == Search || !String.IsNullOrEmpty(s.CPCode)  && s.CPCode.Contains(Search)|| !String.IsNullOrEmpty(s.Standard) && s.Standard.Contains(Search)|| s.OrderNo.ToString().Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<CheckpointsDTO>(data);
                 _resultModel.Success = true;

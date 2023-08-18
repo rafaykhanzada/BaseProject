@@ -9,11 +9,14 @@ namespace Core.Data.DTO
     public class VariantDTO
     {
         public int? Id { get; set; }
+        public int? VariantId { get; set; }
+        public string? Variant { get; set; }
+        public int? FkProductId { get; set; }
+        public string? ProductType { get; set; }
+        public int? auditTypeId { get; set; }
         public string? VariantCode { get; set; }
         public string? VariantName { get; set; }
-        public int? ProductId { get; set; }
         public string? ProductName { get; set; }
-        public int? AudTypeId { get; set; }
         public string? AudTypeName { get; set; }
 
         public bool IsActive { get; set; }

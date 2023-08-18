@@ -9,8 +9,8 @@ namespace Core.Data.DTO
     public class AuditorDTO
     {
         public int Id { get; set; }
-        public string? EmpNo { get; set; }
-        public string? EmpName { get; set; }
+        public int? Empno { get; set; }
+        public string? Name { get; set; }
         public bool IsActive { get; set; }
     }
 }

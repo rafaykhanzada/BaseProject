@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IModelRepository : IRepositoryBase<Model>
+    public interface IModelRepository : IRepositoryBase<Models>
     {
     }
 }

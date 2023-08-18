@@ -18,10 +18,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<FaultGroup> _logger;
+        private readonly ILogger<FaultGroups> _logger;
         private ResultModel _resultModel;
 
-        public FaultGroupService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<FaultGroup> logger, ResultModel resultModel)
+        public FaultGroupService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<FaultGroups> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -32,8 +32,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<FaultGroup>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<FaultGroups>(model);
+                if(data.FaultGroupId == 0) 
                 {
                     data.FGroupCode = GetNextCode();
                     var result = _unitOfWork.FaultGroupRepository.Insert(data);
@@ -61,7 +61,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.FaultGroupRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.FaultGroupRepository.Get(x => x.FaultGroupId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id))
@@ -131,12 +131,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<FaultGroupDTO>(_unitOfWork.FaultGroupRepository.Get(s => s.Id == id).Select(x => new FaultGroup {
-                    Id = x.Id,
-                    FGroupCode = x.FGroupCode,
-                    FGroupName = x.FGroupName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<FaultGroupDTO>(_unitOfWork.FaultGroupRepository.Get(s => s.FaultGroupId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -153,15 +148,9 @@ namespace Service.Service
             try
             {
                 List<FaultGroupDTO> data = new();
-                data = _mapper.Map<List<FaultGroupDTO>>(_unitOfWork.FaultGroupRepository.Get(x => x.DeletedOn == null).Select(x => new FaultGroup
-                {
-                    Id = x.Id,
-                    FGroupCode = x.FGroupCode,
-                    FGroupName = x.FGroupName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<FaultGroupDTO>>(_unitOfWork.FaultGroupRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.FGroupCode) && s.FGroupCode.Contains(Search) || !String.IsNullOrEmpty(s.FGroupName) && s.FGroupName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.FGroupCode) && s.FGroupCode.Contains(Search) || !String.IsNullOrEmpty(s.FaultGroup) && s.FaultGroup.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<FaultGroupDTO>(data);
                 _resultModel.Success = true;
@@ -182,7 +171,7 @@ namespace Service.Service
             bool result = true;
             try
             {
-                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.FGroupId == id).Count();
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.FkFaultGroupId == id).Count();
                 result = (cnt > 0) ? false : true;
 
             }

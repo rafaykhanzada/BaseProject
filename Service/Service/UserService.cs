@@ -26,9 +26,9 @@ namespace Service.Service
     public class UserService : IUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly ILogger<User> _logger;
+        private readonly UserManager<Users> _userManager;
+        private readonly SignInManager<Users> _signInManager;
+        private readonly ILogger<Users> _logger;
         private readonly ResultModel _resultModel;
         private readonly IMapper _mapper;
         private readonly IMenuService _menuService;
@@ -38,7 +38,7 @@ namespace Service.Service
         private readonly IRoleService _roleService;
         //private readonly ICodeService _codeService;
         private readonly RoleManager<Role> _roleManager;
-        public UserService(IHttpContextAccessor httpContextAccessor, UserManager<User> userManager, SignInManager<User> signInManager, ILogger<User> logger, ResultModel resultModel, IMapper mapper, IMenuService menuService, IPermissionService permissionService, IUnitOfWork unitOfWork, IFileService fileService, IRoleService roleService, RoleManager<Role> roleManager)//, ICodeService codeService)
+        public UserService(IHttpContextAccessor httpContextAccessor, UserManager<Users> userManager, SignInManager<Users> signInManager, ILogger<Users> logger, ResultModel resultModel, IMapper mapper, IMenuService menuService, IPermissionService permissionService, IUnitOfWork unitOfWork, IFileService fileService, IRoleService roleService, RoleManager<Role> roleManager)//, ICodeService codeService)
         {
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
@@ -60,7 +60,7 @@ namespace Service.Service
             try
             {
                 String? contextUser = httpContext.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-                var data = _mapper.Map<User>(model);
+                var data = _mapper.Map<Users>(model);
                 String? image = "";
                 if (file != null)
                     data.profile_pic = await _fileService.UploadFileToS3(file);
@@ -103,7 +103,7 @@ namespace Service.Service
                             data.profile_pic = userexist.profile_pic;
                         if (model.Password != null || model.Password != "null")
                         {
-                            var hasher = new PasswordHasher<User>();
+                            var hasher = new PasswordHasher<Users>();
                             userexist.PasswordHash = hasher.HashPassword(null, model.Password);
                         }
                         var result = await _userManager.UpdateAsync(userexist);
@@ -292,7 +292,7 @@ namespace Service.Service
             try
             {
                 string userName = string.Empty;
-                User user = null;
+                Users user = null;
                 UserVM uservm = new UserVM();
                 if (model.Email.Contains("@"))
                 {

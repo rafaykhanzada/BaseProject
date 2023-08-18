@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Shift> _logger;
+        private readonly ILogger<Shifts> _logger;
         private ResultModel _resultModel;
 
-        public ShiftService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Shift> logger, ResultModel resultModel)
+        public ShiftService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Shifts> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,8 +31,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Shift>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<Shifts>(model);
+                if(data.ShiftId == 0) 
                 {
                     data.ShiftCode = GetNextCode();
                     var result = _unitOfWork.ShiftRepository.Insert(data);
@@ -60,7 +60,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.ShiftRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.ShiftRepository.Get(x => x.ShiftId == id).FirstOrDefault();
                 if (result != null)
                 {
 
@@ -124,13 +124,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ShiftDTO>(_unitOfWork.ShiftRepository.Get(s => s.Id == id).Select(x => new Shift {
-                    Id = x.Id,
-                    ShiftCode = x.ShiftCode,
-                    ShiftName = x.ShiftName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
-
+                _resultModel.Data = _mapper.Map<ShiftDTO>(_unitOfWork.ShiftRepository.Get(s => s.ShiftId == id).FirstOrDefault());
                 return _resultModel;
             }
             catch (Exception ex)
@@ -146,15 +140,9 @@ namespace Service.Service
             try
             {
                 List<ShiftDTO> data = new();
-                data = _mapper.Map<List<ShiftDTO>>(_unitOfWork.ShiftRepository.Get(x => x.DeletedOn == null).Select(x => new Shift
-                {
-                    Id = x.Id,
-                    ShiftCode = x.ShiftCode,
-                    ShiftName = x.ShiftName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<ShiftDTO>>(_unitOfWork.ShiftRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.ShiftCode) && s.ShiftCode.Contains(Search) || !String.IsNullOrEmpty(s.ShiftName) && s.ShiftName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ShiftCode) && s.ShiftCode.Contains(Search) || !String.IsNullOrEmpty(s.Shift) && s.Shift.Contains(Search)).ToList();
                 byte[] content = ExcelExportUtility.ExportToExcel<ShiftDTO>(data);
                 _resultModel.Success = true;
                 _resultModel.Data = content;

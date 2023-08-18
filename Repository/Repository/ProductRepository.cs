@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class ProductRepository : RepositoryBase<Product>,IProductRepository
+    public class ProductRepository : RepositoryBase<Products>,IProductRepository
     {
         public ProductRepository(IDbTransaction transaction) : base(transaction) 
         {

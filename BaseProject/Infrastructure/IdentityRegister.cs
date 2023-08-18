@@ -23,7 +23,7 @@ namespace BaseProject.Infrastructure
                        errorNumbersToAdd: null
                            );
                    }));
-            services.AddIdentity<User, Role>(options => options.SignIn.RequireConfirmedAccount = false)
+            services.AddIdentity<Users, Role>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders().AddRoles<Role>();
             services.Configure<IdentityOptions>(options =>
             {

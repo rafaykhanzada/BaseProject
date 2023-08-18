@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class AuditTypeRepository : RepositoryBase<AuditType>, IAuditTypeRepository
+    public class AuditTypeRepository : RepositoryBase<AuditTypes>, IAuditTypeRepository
     {
         public AuditTypeRepository(IDbTransaction transaction) : base(transaction) 
         {

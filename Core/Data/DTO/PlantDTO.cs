@@ -8,9 +8,9 @@ namespace Core.Data.DTO
 {
     public class PlantDTO 
     {
-        public int Id { get; set; }
-        public string? PlantCode { get; set; }
-        public string? PlantName { get; set; }
+        public int PlantId { get; set; }
+        public string? Code { get; set; }
+        public string? Plant { get; set; }
         public bool IsActive { get; set; }
     }
 }

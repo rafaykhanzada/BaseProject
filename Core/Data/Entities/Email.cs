@@ -1,30 +1,29 @@
-﻿using Core.Data.Common;
-using System;
+﻿
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using AutoMapper.Configuration.Annotations;
-using Dapper.Contrib.Extensions;
+using Core.Data.Common;
 
 namespace Core.Data.Entities
 {
-    public class Email : HasIdDate
+    public class Email: EmailAddress
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int EmailId { get; set; }
         public string? EmailCode { get; set; }
-        public string? EmailName { get; set; }
-        public int? CategId { get; set; }
-        public string? CategName { get; set; }
-        public int? PlantId { get; set; }
-        public string? PlantName { get; set; }
+        public int? FkPlantId { get; set; }
+        public string? Category { get; set; }
+        [JsonIgnore]
+        [ForeignKey("FkPlantId")]
+        public Plants? Plant { get; set; }
 
-        [ForeignKey("PlantId")]
-        public Plant? Plant { get; set; }
+        //[ForeignKey("CategId")]
+        //public Category? Category { get; set; }
+    }
+    public partial class EmailAddress : HasDate
+    {
+        public string? Email { get; set; }
 
-        [ForeignKey("CategId")]
-        public Category? Category { get; set; }
     }
 }

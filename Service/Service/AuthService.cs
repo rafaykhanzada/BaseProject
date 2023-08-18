@@ -24,18 +24,18 @@ namespace Service.Service
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Users> _userManager;
         private readonly RoleManager<Role> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly ILogger<User> _logger;
+        private readonly ILogger<Users> _logger;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly ResultModel _resultModel;
         private readonly IMapper _mapper;
         private readonly IMenuService _menuService;
         private readonly IPermissionService _permissionService;
 
-        public AuthService(UserManager<User> userManager, RoleManager<Role> roleManager, ApplicationDbContext context, IConfiguration configuration, TokenValidationParameters tokenValidationParameters, ResultModel resultModel, ILogger<User> logger, IMapper mapper, IMenuService menuService, IPermissionService permissionService)
+        public AuthService(UserManager<Users> userManager, RoleManager<Role> roleManager, ApplicationDbContext context, IConfiguration configuration, TokenValidationParameters tokenValidationParameters, ResultModel resultModel, ILogger<Users> logger, IMapper mapper, IMenuService menuService, IPermissionService permissionService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -61,7 +61,7 @@ namespace Service.Service
                     return _resultModel;
                 }
 
-                User newUser = new User()
+                Users newUser = new Users()
                 {
                     Name = model.Name,
                     Email = model.Email,
@@ -104,7 +104,7 @@ namespace Service.Service
             try
             {
                 string userName = string.Empty;
-                User user = null;
+                Users user = null;
                 UserVM uservm = new UserVM();
                 if (model.Email.Contains("@"))
                 {
@@ -197,7 +197,7 @@ namespace Service.Service
             }
         }
 
-        private async Task<AuthResultVM> GenerateJWTTokenAsync(User user, RefreshToken rToken)
+        private async Task<AuthResultVM> GenerateJWTTokenAsync(Users user, RefreshToken rToken)
         {
             var authClaims = new List<Claim>()
             {
@@ -262,7 +262,7 @@ namespace Service.Service
         {
             try
             {
-                User user = await _userManager.FindByIdAsync(model.Id);
+                Users user = await _userManager.FindByIdAsync(model.Id);
                 if(user != null) 
                 {
                     //bool result = await _userManager.CheckPasswordAsync(user, model.Password);

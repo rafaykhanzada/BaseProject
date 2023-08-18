@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Plant> _logger;
+        private readonly ILogger<Plants> _logger;
         private ResultModel _resultModel;
 
-        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Plant> logger, ResultModel resultModel)
+        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Plants> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,12 +31,12 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Plant>(model);
+                var data = _mapper.Map<Plants>(model);
                 data.IsActive = true;
 
-                if (data.Id == 0) 
+                if (data.PlantId == 0) 
                 {
-                    data.PlantCode = GetNextCode();
+                    data.Code = GetNextCode();
                     var result = _unitOfWork.PlantRepository.Insert(data);
                 }
                 else 
@@ -62,7 +62,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.PlantRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.PlantRepository.Get(x => x.PlantId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id))
@@ -131,12 +131,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<PlantDTO>(_unitOfWork.PlantRepository.Get(s => s.Id == id).Select(x => new Plant {
-                    Id = x.Id,
-                    PlantCode = x.PlantCode,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<PlantDTO>(_unitOfWork.PlantRepository.Get(s => s.PlantId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -153,15 +148,9 @@ namespace Service.Service
             try
             {
                 List<PlantDTO> data = new();
-                data = _mapper.Map<List<PlantDTO>>(_unitOfWork.PlantRepository.Get(x => x.DeletedOn == null).Select(x => new Plant
-                {
-                    Id = x.Id,
-                    PlantCode = x.PlantCode,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<PlantDTO>>(_unitOfWork.PlantRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.PlantCode) && s.PlantCode.Contains(Search) || !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Code) && s.Code.Contains(Search) || !String.IsNullOrEmpty(s.Plant) && s.Plant.Contains(Search)).ToList();
                 byte[] content = ExcelExportUtility.ExportToExcel<PlantDTO>(data);
                 _resultModel.Success = true;
                 _resultModel.Data = content;
@@ -181,10 +170,10 @@ namespace Service.Service
             bool result = true;
             try
             {
-                int cnt = _unitOfWork.ProductRepository.Get(x => x.PlantId == id).Count();
+                int cnt = _unitOfWork.ProductRepository.Get(x => x.FkPlantId == id).Count();
                 result = (cnt > 0) ? false : true;
 
-                cnt = _unitOfWork.EmailRepository.Get(x => x.PlantId == id).Count();
+                cnt = _unitOfWork.EmailRepository.Get(x => x.FkPlantId == id).Count();
                 result = (cnt > 0) ? false : true;
             }
             catch (Exception ex)

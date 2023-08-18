@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repository
 {
-    public class ZoneRepository : RepositoryBase<Zone>, IZoneRepository
+    public class ZoneRepository : RepositoryBase<ZoneOrStations>, IZoneRepository
     {
         public ZoneRepository(IDbTransaction transaction) : base(transaction) 
         { 

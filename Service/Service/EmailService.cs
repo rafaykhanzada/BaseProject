@@ -32,7 +32,7 @@ namespace Service.Service
             try
             {
                 var data = _mapper.Map<Email>(model);
-                if(data.Id == 0) 
+                if(data.EmailId == 0) 
                 {
                     data.EmailCode = GetNextCode();
                     var result = _unitOfWork.EmailRepository.Insert(data);
@@ -60,7 +60,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.EmailRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.EmailRepository.Get(x => x.EmailId == id).FirstOrDefault();
                 if (result != null)
                 {
                     _unitOfWork.EmailRepository.Delete(id);
@@ -121,16 +121,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<EmailDTO>(_unitOfWork.EmailRepository.Get(s => s.Id == id).Select(x => new Email {
-                    Id = x.Id,
-                    EmailCode = x.EmailCode,
-                    EmailName = x.EmailName,
-                    CategId = x.CategId,
-                    CategName = x.CategName,
-                    PlantId = x.PlantId,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<EmailDTO>(_unitOfWork.EmailRepository.Get(s => s.EmailId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -147,19 +138,9 @@ namespace Service.Service
             try
             {
                 List<EmailDTO> data = new();
-                data = _mapper.Map<List<EmailDTO>>(_unitOfWork.EmailRepository.Get(x => x.DeletedOn == null).Select(x => new Email
-                {
-                    Id = x.Id,
-                    EmailCode = x.EmailCode,
-                    EmailName = x.EmailName,
-                    CategId = x.CategId,
-                    CategName = x.CategName,
-                    PlantId = x.PlantId,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<EmailDTO>>(_unitOfWork.EmailRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.EmailCode) && s.EmailCode.Contains(Search) || !String.IsNullOrEmpty(s.CategName) && s.CategName.Contains(Search) || !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search) || !String.IsNullOrEmpty(s.EmailName) && s.EmailName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.EmailCode) && s.EmailCode.Contains(Search) || !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search) || !String.IsNullOrEmpty(s.Email) && s.Email.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<EmailDTO>(data);
                 _resultModel.Success = true;

@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<CPDeviation> _logger;
+        private readonly ILogger<CheckpointDeviations> _logger;
         private ResultModel _resultModel;
 
-        public CPDeviationService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CPDeviation> logger, ResultModel resultModel)
+        public CPDeviationService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CheckpointDeviations> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,8 +31,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<CPDeviation>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<CheckpointDeviations>(model);
+                if(data.CheckpointDeviationId == 0) 
                 {
                     data.CPDevCode = GetNextCode();
                     var result = _unitOfWork.CPDeviationRepository.Insert(data);
@@ -60,7 +60,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.CPDeviationRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.CPDeviationRepository.Get(x => x.CheckpointDeviationId == id).FirstOrDefault();
                 if (result != null)
                 {
                     _unitOfWork.CPDeviationRepository.Delete(id);
@@ -121,12 +121,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CPDeviationDTO>(_unitOfWork.CPDeviationRepository.Get(s => s.Id == id).Select(x => new CPDeviation {
-                    Id = x.Id,
-                    CPDevCode = x.CPDevCode,
-                    CPDevName = x.CPDevName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<CPDeviationDTO>(_unitOfWork.CPDeviationRepository.Get(s => s.CheckpointDeviationId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -143,15 +138,9 @@ namespace Service.Service
             try
             {
                 List<CPDeviationDTO> data = new();
-                data = _mapper.Map<List<CPDeviationDTO>>(_unitOfWork.CPDeviationRepository.Get(x => x.DeletedOn == null).Select(x => new CPDeviation
-                {
-                    Id = x.Id,
-                    CPDevCode = x.CPDevCode,
-                    CPDevName = x.CPDevName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<CPDeviationDTO>>(_unitOfWork.CPDeviationRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.CPDevName) && s.CPDevName.Contains(Search) || !String.IsNullOrEmpty(s.CPDevCode) && s.CPDevCode.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Deviation) && s.Deviation.Contains(Search) || !String.IsNullOrEmpty(s.CPDevCode) && s.CPDevCode.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<CPDeviationDTO>(data);
                 _resultModel.Success = true;

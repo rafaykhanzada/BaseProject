@@ -26,7 +26,7 @@ options.AddDefaultPolicy(builder =>
 }));
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.WebHost.UseUrls("https://192.168.19.23:5001/");
+builder.WebHost.UseUrls("https://192.168.19.23:5001/");
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped((s) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));

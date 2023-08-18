@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.Data.Entities
 {
-    public class User:IdentityUser
+    public class Users:IdentityUser
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

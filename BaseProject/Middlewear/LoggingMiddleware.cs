@@ -34,7 +34,7 @@ namespace BaseProject.Middlewear
                 var route = httpContext.Request.Path != "/" ? httpContext.Request.Path.Value.ToLower().Split("/")[2] : "";
                 //var path = httpContext.Request.Path != "/" && httpContext.Request.Path.Value.ToLower().Split("/").Length > 3 ? httpContext.Request.Path.Value.ToLower().Split("/")[3] : "";
                 var token = httpContext.Request.Headers.Where(x => x.Key == "Authorization").Select(x => x.Value).FirstOrDefault();
-                var CurrentUser = new User();
+                var CurrentUser = new Users();
                 if (token.Count() > 0)
                 {
                     tok = token.First().ToString().Split(" ")[1];

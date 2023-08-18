@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Model> _logger;
+        private readonly ILogger<Models> _logger;
         private ResultModel _resultModel;
 
-        public ModelService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Model> logger, ResultModel resultModel)
+        public ModelService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Models> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,8 +31,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Model>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<Models>(model);
+                if(data.ModelId == 0) 
                 {
                     var result = _unitOfWork.ModelRepository.Insert(data);
                 }
@@ -59,7 +59,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.ModelRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.ModelRepository.Get(x => x.ModelId == id).FirstOrDefault();
                 if (result != null)
                 {
                     _unitOfWork.ModelRepository.Delete(id);
@@ -104,9 +104,11 @@ namespace Service.Service
         {
             try
             {
-
+                
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ModelDTO>(Search);
-                _resultModel.Data = _unitOfWork.ModelRepository.PagedList(query, pageIndex, pageSize);
+                var data = _unitOfWork.ModelRepository.PagedList(query, pageIndex, pageSize);
+                foreach (var item in _mapper.Map<List<ModelDTO>>(data.List))
+                    item.Variant = _unitOfWork.VariantRepository.Get(v => v.VariantId == item.FkVariantId).FirstOrDefault()!.Variant;
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -122,15 +124,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ModelDTO>(_unitOfWork.ModelRepository.Get(s => s.Id == id).Select(x => new Model{
-                    Id = x.Id,
-                    ModelCode = x.ModelCode,
-                    ModelName = x.ModelName,
-                    VariantId = x.VariantId,
-                    VariantName = x.VariantName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
-
+                _resultModel.Data = _mapper.Map<ModelDTO>(_unitOfWork.ModelRepository.Get(s => s.ModelId == id).FirstOrDefault());
                 return _resultModel;
             }
             catch (Exception ex)
@@ -146,17 +140,17 @@ namespace Service.Service
             try
             {
                 List<ModelDTO> data = new();
-                data = _mapper.Map<List<ModelDTO>>(_unitOfWork.ModelRepository.Get(x => x.DeletedOn == null).Select(x => new Model
+                data =_unitOfWork.ModelRepository.Get(x => x.DeletedOn == null).Select(x => new ModelDTO
                 {
-                    Id = x.Id,
-                    ModelCode = x.ModelCode,
-                    ModelName = x.ModelName,
-                    VariantId = x.VariantId,
-                    VariantName = x.VariantName,
+                    ModelId = x.ModelId,
+                    Code = x.Code,
+                    Model = x.Model,
+                    FkVariantId = x.FkVariantId,
+                    Variant = _unitOfWork.VariantRepository.Get(v=>v.VariantId == x.FkVariantId).FirstOrDefault()!.Variant,
                     IsActive = x.IsActive
-                }).ToList());
+                }).ToList();
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.ModelCode) && s.ModelCode.Contains(Search) ||!String.IsNullOrEmpty(s.VariantName) && s.VariantName.Contains(Search) || !String.IsNullOrEmpty(s.ModelName) && s.ModelName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Code) && s.Code.Contains(Search) ||!String.IsNullOrEmpty(s.Variant) && s.Variant.Contains(Search) || !String.IsNullOrEmpty(s.Model) && s.Model.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<ModelDTO>(data);
                 _resultModel.Success = true;

@@ -8,9 +8,10 @@ namespace Core.Data.DTO
 {
     public class ShiftDTO
     {
-        public int? Id { get; set; }
+        public int? ShiftId { get; set; }
+        public string? Shift { get; set; }
+        public string? Description { get; set; }
         public string? ShiftCode { get; set; }
-        public string? ShiftName { get; set; }
         public bool IsActive { get; set; }
     }
 }

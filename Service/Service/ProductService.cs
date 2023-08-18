@@ -18,10 +18,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Product> _logger;
+        private readonly ILogger<Products> _logger;
         private ResultModel _resultModel;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Product> logger, ResultModel resultModel)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Products> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -32,14 +32,14 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Product>(model);
-                if (data.PlantId == null || data.PlantId == 0)
+                var data = _mapper.Map<Products>(model);
+                if (data.FkPlantId == null || data.FkPlantId == 0)
                 {
                     _resultModel.Success = false;
                     _resultModel.Message = "Plant id is required";
                     return _resultModel;
                 }
-                if (data.Id == 0)
+                if (data.FkPlantId == 0)
                 {
                     data.ProductCode = GetNextCode();
                     var result = _unitOfWork.ProductRepository.Insert(data);
@@ -67,7 +67,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.ProductRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.ProductRepository.Get(x => x.ProductId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id))
@@ -139,14 +139,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<ProductDTO>(_unitOfWork.ProductRepository.Get(s => s.Id == id).Select(x => new Product {
-                    Id = x.Id,
-                    ProductCode = x.ProductCode,
-                    ProductName = x.ProductName,
-                    PlantId = x.PlantId,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<ProductDTO>(_unitOfWork.ProductRepository.Get(s => s.FkPlantId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -163,17 +156,9 @@ namespace Service.Service
             try
             {
                 List<ProductDTO> data = new();
-                data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.Get(x => x.DeletedOn == null).Select(x => new Product
-                {
-                    Id = x.Id,
-                    ProductCode = x.ProductCode,
-                    ProductName = x.ProductName,
-                    PlantId = x.PlantId,
-                    PlantName = x.PlantName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.ProductCode) && s.ProductCode.Contains(Search) || !String.IsNullOrEmpty(s.ProductName) && s.ProductName.Contains(Search)|| !String.IsNullOrEmpty(s.PlantName) && s.PlantName.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.ProductCode) && s.ProductCode.Contains(Search) || !String.IsNullOrEmpty(s.Product) && s.Product.Contains(Search)).ToList();
                 byte[] content = ExcelExportUtility.ExportToExcel<ProductDTO>(data);
                 _resultModel.Success = true;
                 _resultModel.Data = content;
@@ -190,18 +175,15 @@ namespace Service.Service
         }
         private bool ValidateForDelete(int id)
         {
-            bool result = true;
             try
             {
-                int cnt = _unitOfWork.VariantRepository.Get(x => x.ProductId == id).Count();
-                result = (cnt > 0) ? false : true;
-
+                return _unitOfWork.VariantRepository.Get(x => x.FkProductId == id).Any();
             }
             catch (Exception ex)
             {
-
+                _logger.LogError("Error:", ex);
+                return false;
             }
-            return result;
         }
         private string GetNextCode()
         {

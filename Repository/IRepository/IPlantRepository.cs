@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IPlantRepository : IRepositoryBase<Plant>
+    public interface IPlantRepository : IRepositoryBase<Plants>
     {
     }
 }

@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<Auditor> _logger;
+        private readonly ILogger<Auditors> _logger;
         private ResultModel _resultModel;
 
-        public AuditorService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Auditor> logger, ResultModel resultModel)
+        public AuditorService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Auditors> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,7 +31,7 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Auditor>(model);
+                var data = _mapper.Map<Auditors>(model);
                 if(data.Id == 0) 
                     _unitOfWork.AuditorRepository.Insert(data);
                 else 
@@ -100,7 +100,7 @@ namespace Service.Service
         {
             try
             {
-                var query = String.IsNullOrEmpty(Search) ? "": DBUtil.GenerateSearchQuery<Auditor>(Search);
+                var query = String.IsNullOrEmpty(Search) ? "": DBUtil.GenerateSearchQuery<Auditors>(Search);
                 _resultModel.Data = _unitOfWork.AuditorRepository.PagedList(query, pageIndex, pageSize);
                 _resultModel.Success = true;
             }
@@ -117,10 +117,10 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<AuditorDTO>(_unitOfWork.AuditorRepository.Get(s=> s.Id == id).Select(x=> new Auditor {
+                _resultModel.Data = _mapper.Map<AuditorDTO>(_unitOfWork.AuditorRepository.Get(s=> s.Id == id).Select(x=> new Auditors {
                     Id = x.Id,
-                    EmpNo = x.EmpNo,
-                    EmpName = x.EmpName,
+                    Empno = x.Empno,
+                    Name = x.Name,
                     IsActive = x.IsActive
                 } ).FirstOrDefault());
 
@@ -139,15 +139,15 @@ namespace Service.Service
             try
             {
                 List<AuditorDTO> data = new();
-                data = _mapper.Map<List<AuditorDTO>>(_unitOfWork.AuditorRepository.Get(x=>x.DeletedOn == null).Select(x => new Auditor
+                data = _mapper.Map<List<AuditorDTO>>(_unitOfWork.AuditorRepository.Get(x=>x.DeletedOn == null).Select(x => new Auditors
                 {
                     Id = x.Id,
-                    EmpNo = x.EmpNo,
-                    EmpName = x.EmpName,
+                    Empno = x.Empno,
+                    Name = x.Name,
                     IsActive = x.IsActive
                 }).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => s.EmpName == Search || s.EmpNo == Search).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Name) && s.Name.Contains(Search) || s.Empno.ToString()!.Contains(Search)).ToList();
                 
                 byte[] content = ExcelExportUtility.ExportToExcel<AuditorDTO>(data);
                 _resultModel.Success = true;

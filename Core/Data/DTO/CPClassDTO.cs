@@ -8,9 +8,9 @@ namespace Core.Data.DTO
 {
     public class CPClassDTO
     {
-        public int Id { get; set; }
+        public int CheckpointClassId { get; set; }
+        public string? Class { get; set; }
         public string? CPClassCode { get; set; }
-        public string? CPClassName { get; set; }
         public bool IsActive { get; set; }
     }
 }

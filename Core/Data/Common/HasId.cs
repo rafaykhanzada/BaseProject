@@ -18,6 +18,17 @@ namespace Core.Data.Common
         public string? UpdatedBy { get; set; }
         public string? DeletedBy { get; set; }
         public bool IsActive { get; set; }
+    } 
+    public partial class HasDate
+    {
+
+        public DateTime? CreatedOn { get; set; } = DateTime.Now;
+        public DateTime? UpdatedOn { get; set; } = DateTime.Now;
+        public DateTime? DeletedOn { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public string? DeletedBy { get; set; }
+        public bool IsActive { get; set; }
     }
     public partial class HasId
     {

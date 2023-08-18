@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IVariantRepository : IRepositoryBase<Variant>
+    public interface IVariantRepository : IRepositoryBase<Variants>
     {
     }
 }

@@ -8,7 +8,7 @@ namespace Core.Utilities
 {
     public class ListModel<T> where T : class
     {
-        public IEnumerable<T> List { get; set; }
+        public object List { get; set; }
         public int CurrentPage { get; set; }
         public int PageCount { get; set; }
         public int ItemCount { get; set; }

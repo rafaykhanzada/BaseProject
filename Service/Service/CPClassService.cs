@@ -17,10 +17,10 @@ namespace Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ILogger<CPClass> _logger;
+        private readonly ILogger<CheckpointClasses> _logger;
         private ResultModel _resultModel;
 
-        public CPClassService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CPClass> logger, ResultModel resultModel)
+        public CPClassService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CheckpointClasses> logger, ResultModel resultModel)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -31,8 +31,8 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<CPClass>(model);
-                if(data.Id == 0) 
+                var data = _mapper.Map<CheckpointClasses>(model);
+                if(data.CheckpointClassId == 0) 
                 {
                     data.CPClassCode = GetNextCode();
                     var result = _unitOfWork.CPClassRepository.Insert(data);
@@ -60,7 +60,7 @@ namespace Service.Service
         {
             try
             {
-                var result = _unitOfWork.CPClassRepository.Get(x => x.Id == id).FirstOrDefault();
+                var result = _unitOfWork.CPClassRepository.Get(x => x.CheckpointClassId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (ValidateForDelete(id)) 
@@ -130,12 +130,7 @@ namespace Service.Service
         {
             try
             {
-                _resultModel.Data = _mapper.Map<CPClassDTO>(_unitOfWork.CPClassRepository.Get(s => s.Id == id).Select(x => new CPClass {
-                    Id = x.Id,
-                    CPClassCode = x.CPClassCode,
-                    CPClassName = x.CPClassName,
-                    IsActive = x.IsActive
-                }).FirstOrDefault());
+                _resultModel.Data = _mapper.Map<CPClassDTO>(_unitOfWork.CPClassRepository.Get(s => s.CheckpointClassId == id).FirstOrDefault());
 
                 return _resultModel;
             }
@@ -152,15 +147,9 @@ namespace Service.Service
             try
             {
                 List<CPClassDTO> data = new();
-                data = _mapper.Map<List<CPClassDTO>>(_unitOfWork.CPClassRepository.Get(x => x.DeletedOn == null).Select(x => new CPClass
-                {
-                    Id = x.Id,
-                    CPClassCode = x.CPClassCode,
-                    CPClassName = x.CPClassName,
-                    IsActive = x.IsActive
-                }).ToList());
+                data = _mapper.Map<List<CPClassDTO>>(_unitOfWork.CPClassRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
-                    data = data.Where(s => !String.IsNullOrEmpty(s.CPClassName) && s.CPClassName.Contains(Search) || !String.IsNullOrEmpty(s.CPClassCode) && s.CPClassCode.Contains(Search)).ToList();
+                    data = data.Where(s => !String.IsNullOrEmpty(s.Class) && s.Class.Contains(Search) || !String.IsNullOrEmpty(s.CPClassCode) && s.CPClassCode.Contains(Search)).ToList();
 
                 byte[] content = ExcelExportUtility.ExportToExcel<CPClassDTO>(data);
                 _resultModel.Success = true;
@@ -181,7 +170,7 @@ namespace Service.Service
             bool result = true;
             try
             {
-                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.CPClassId == id).Count();
+                int cnt = _unitOfWork.CheckpointsRepository.Get(x => x.CheckpointId == id).Count();
                 result = (cnt > 0) ? false : true;
 
             }

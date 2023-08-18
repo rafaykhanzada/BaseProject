@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface IAuditorRepository : IRepositoryBase<Auditor>
+    public interface IAuditorRepository : IRepositoryBase<Auditors>
     {
     }
 }

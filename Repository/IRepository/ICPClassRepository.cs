@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.IRepository
 {
-    public interface ICPClassRepository : IRepositoryBase<CPClass>
+    public interface ICPClassRepository : IRepositoryBase<CheckpointClasses>
     {
     }
 }

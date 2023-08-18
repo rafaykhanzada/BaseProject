@@ -62,18 +62,18 @@ namespace Service.Service
                 var result = _unitOfWork.CategoryRepository.Get(x => x.Id == id).FirstOrDefault();
                 if (result != null)
                 {
-                    if (ValidateForDelete(id)) 
-                    {
+                    //if (ValidateForDelete(id)) 
+                    //{
                         _unitOfWork.CategoryRepository.Delete(id);
                         _unitOfWork.Commit();
                         _resultModel.Success = true;
                         _resultModel.Message = "Record deleted sucessfully.";
-                    }
-                    else 
-                    {
-                        _resultModel.Success = false;
-                        _resultModel.Message = "Record can't be deleted sucessfully, it is in used.";
-                    }
+                    //}
+                    //else 
+                    //{
+                    //    _resultModel.Success = false;
+                    //    _resultModel.Message = "Record can't be deleted sucessfully, it is in used.";
+                    //}
 
 
                 }
@@ -173,21 +173,21 @@ namespace Service.Service
             }
             return _resultModel;
         }
-        private bool ValidateForDelete(int id)
-        {
-            bool result = true;
-            try
-            {
-                int cnt = _unitOfWork.EmailRepository.Get(x => x.CategId == id).Count();
-                result = (cnt > 0) ? false : true;
+        //private bool ValidateForDelete(int id)
+        //{
+        //    bool result = true;
+        //    try
+        //    {
+        //        int cnt = _unitOfWork.EmailRepository.Get(x => x.CategId == id).Count();
+        //        result = (cnt > 0) ? false : true;
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-            }
-            return result;
-        }
+        //    }
+        //    return result;
+        //}
 
     }
 }

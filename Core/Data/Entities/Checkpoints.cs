@@ -1,48 +1,40 @@
 ﻿using Core.Data.Common;
-using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using AutoMapper.Configuration.Annotations;
-using Dapper.Contrib.Extensions;
 
 namespace Core.Data.Entities
 {
-    public class Checkpoints : HasIdDate
+    public class Checkpoints: HasDate
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? CheckpointId { get; set; }
+        public string? Description { get; set; }
+        public string? Standard { get; set; }   
+        public int? FkVariantId { get; set; }
+        public int? FkAuditTypeId { get; set; }
+        public int? FkZoneOrStationId { get; set; }
+        public int? FkClassId { get; set; }
+        public decimal? DefectWeightage { get; set; }
+        public int? FkFaultGroupId { get; set; }
         public string? CPCode { get; set; }
-        public string? CPDesc { get; set; }
-        public int CPOrderNo { get; set; }
-        public string? Standard { get; set; }
-        public int? AudTypeId { get; set; }
-        public string? AudTypeName { get; set; }
-        public int? VariantId { get; set; }
-        public string? VariantName { get; set; }
-        public int? ZoneId { get; set; }
-        public string? ZoneName { get; set; }
-        public int? FGroupId { get; set; }
-        public string? FGroupName { get; set; }
-        public int? CPClassId { get; set; }
-        public string? CPClassName { get; set; }
-        public decimal? DWeightage { get; set; }
+        public int OrderNo { get; set; }
 
-        [ForeignKey("VariantId")]
-        public Variant? Variant { get; set; }
-
-        [ForeignKey("ZoneId")]
-        public Zone? Zone { get; set; }
-
-        [ForeignKey("FGroupId")]
-        public FaultGroup? FaultGroup { get; set; }
-        [ForeignKey("CPClassId")]
-        public CPClass? CPClass { get; set; }
-        [ForeignKey("AudTypeId")]
-        public AuditType? AuditType { get; set; }
-
-
+        [JsonIgnore]
+        [ForeignKey("FkVariantId")]
+        public Variants? Variant { get; set; }
+        [JsonIgnore]
+        [ForeignKey("FkZoneOrStationId")]
+        public ZoneOrStations? Zone { get; set; }
+        [JsonIgnore]
+        [ForeignKey("FkFaultGroupId")]
+        public FaultGroups? FaultGroup { get; set; }
+        [JsonIgnore]
+        [ForeignKey("FkClassId")]
+        public CheckpointClasses? CPClass { get; set; }
+        [JsonIgnore]
+        [ForeignKey("FkAuditTypeId")]
+        public AuditTypes? AuditType { get; set; }
     }
 }
