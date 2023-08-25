@@ -110,6 +110,7 @@ namespace Service.Service
                 foreach (var item in _mapper.Map<List<ModelDTO>>(data.List))
                     item.Variant = _unitOfWork.VariantRepository.Get(v => v.VariantId == item.FkVariantId).FirstOrDefault()!.Variant;
                 _resultModel.Success = true;
+                _resultModel.Data = data;
             }
             catch (Exception ex)
             {
