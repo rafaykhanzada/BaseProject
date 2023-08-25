@@ -37,7 +37,7 @@ namespace Core.Data.DataContext
         public DbSet<Role> Role { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
         public DbSet<ScheduleJob> ScheduleJob { get; set; }
-        public DbSet<Users> User { get; set; }
+        public DbSet<Users> Users { get; set; }
         public DbSet<RefreshToken> RefreshToken { get; set; }
         public DbSet<Menu> Menu { get; set; }
         public DbSet<Permission> Permission { get; set; }
@@ -64,13 +64,13 @@ namespace Core.Data.DataContext
             //builder.Entity<ZoneOrStations>().ToTable($"tbl{nameof(Zone)}");
             //builder.Entity<Checkpoints>().ToTable($"tbl{nameof(Checkpoints)}");
             //builder.Entity<Category>().ToTable($"tbl{nameof(Category)}");
-            builder.Entity<Role>().ToTable($"tbl{nameof(Role)}");
-            builder.Entity<ActivityLog>().ToTable($"tbl{nameof(ActivityLog)}");
-            builder.Entity<ScheduleJob>().ToTable($"tbl{nameof(ScheduleJob)}");
-            builder.Entity<Users>().ToTable($"tbl{nameof(User)}");
-            builder.Entity<Menu>().ToTable($"tbl{nameof(Menu)}");
-            builder.Entity<RefreshToken>().ToTable($"tbl{nameof(RefreshToken)}");
-            builder.Entity<Permission>().ToTable($"tbl{nameof(Permission)}");
+            builder.Entity<Role>().ToTable($"{nameof(Role)}");
+            //builder.Entity<ActivityLog>().ToTable($"tbl{nameof(ActivityLog)}");
+            //builder.Entity<ScheduleJob>().ToTable($"tbl{nameof(ScheduleJob)}");
+            builder.Entity<Users>().ToTable($"{nameof(Users)}");
+            //builder.Entity<Menu>().ToTable($"tbl{nameof(Menu)}");
+            //builder.Entity<RefreshToken>().ToTable($"tbl{nameof(RefreshToken)}");
+            //builder.Entity<Permission>().ToTable($"tbl{nameof(Permission)}");
             builder.Entity<Users>().Property(x => x.UserId).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
             builder.Entity<Role>().Property(x => x.RoleId).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
         }
