@@ -8,7 +8,6 @@ namespace Core.Data.DTO
 {
     public class ModelDTO
     {
-        public int Id { get; set; }
         public int ModelId { get; set; }
         public string? Model { get; set; }
         public string? Code { get; set; }

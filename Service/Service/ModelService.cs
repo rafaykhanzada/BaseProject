@@ -27,20 +27,16 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
-        public async Task<ResultModel> CreateOrUpdate(ModelDTO model)
+        public ResultModel CreateOrUpdate(ModelDTO model)
         {
             try
             {
                 var data = _mapper.Map<Models>(model);
-                if(data.ModelId == 0) 
-                {
-                    var result = _unitOfWork.ModelRepository.Insert(data);
-                }
-                else 
-                {
+                if (data.ModelId == 0)
+                    _unitOfWork.ModelRepository.Insert(data);
+                else
                     _unitOfWork.ModelRepository.UpdateVoid(data);
-                }
-                
+
                 var list = _unitOfWork.ModelRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;
@@ -55,7 +51,7 @@ namespace Service.Service
             return _resultModel;
         }
 
-        public async Task<ResultModel> Delete(int id)
+        public ResultModel Delete(int id)
         {
             try
             {

@@ -8,7 +8,6 @@ namespace Core.Data.DTO
 {
     public class VariantDTO
     {
-        public int? Id { get; set; }
         public int? VariantId { get; set; }
         public string? Variant { get; set; }
         public int? FkProductId { get; set; }

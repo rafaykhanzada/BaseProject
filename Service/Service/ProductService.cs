@@ -39,7 +39,7 @@ namespace Service.Service
                     _resultModel.Message = "Plant id is required";
                     return _resultModel;
                 }
-                if (data.FkPlantId == 0)
+                if (data.ProductId == 0)
                 {
                     data.ProductCode = GetNextCode();
                     var result = _unitOfWork.ProductRepository.Insert(data);

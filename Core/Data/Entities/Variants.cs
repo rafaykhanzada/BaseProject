@@ -22,7 +22,7 @@ namespace Core.Data.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 
-        public int? VariantId { get; set; }
+        public int VariantId { get; set; }
         public string? Variant { get; set; }
         public int? FkProductId { get; set; }
         public string? ProductType { get; set; }

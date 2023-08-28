@@ -14,5 +14,6 @@ namespace Core.Data.Entities
     {
         public int? Empno { get; set; }
         public string? Name { get; set; }
+        public string? Code { get; set; }
     }
 }
