@@ -54,20 +54,20 @@ namespace BaseProject.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CheckpointsDTO model)
+        public IActionResult Post([FromBody] CheckpointsDTO model)
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _checkpointService.CreateOrUpdate(model));
+                return Ok(_checkpointService.CreateOrUpdate(model));
             return BadRequest();
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CheckpointsDTO model)
+        public IActionResult Put(int id, [FromBody] CheckpointsDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _checkpointService.CreateOrUpdate(model));
+                return Ok(_checkpointService.CreateOrUpdate(model));
             return BadRequest();
         }
 

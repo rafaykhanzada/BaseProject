@@ -63,8 +63,8 @@ namespace BaseProject.Controllers
         }
 
         // PUT api/<CategoryController>/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CPDeviationDTO model)
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] CPDeviationDTO model)
         {
             if (ModelState.IsValid)
                 return Ok(await _cpdeviationService.CreateOrUpdate(model));

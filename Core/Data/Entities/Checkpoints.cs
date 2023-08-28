@@ -9,7 +9,7 @@ namespace Core.Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? CheckpointId { get; set; }
+        public int CheckpointId { get; set; }
         public string? Description { get; set; }
         public string? Standard { get; set; }   
         public int? FkVariantId { get; set; }

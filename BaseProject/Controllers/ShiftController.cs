@@ -54,20 +54,20 @@ namespace BaseProject.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ShiftDTO model)
+        public IActionResult Post([FromBody] ShiftDTO model)
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _shiftService.CreateOrUpdate(model));
+                return Ok(_shiftService.CreateOrUpdate(model));
             return BadRequest();
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] ShiftDTO model)
+        public IActionResult Put(int id, [FromBody] ShiftDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _shiftService.CreateOrUpdate(model));
+                return Ok(_shiftService.CreateOrUpdate(model));
             return BadRequest();
         }
 

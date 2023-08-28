@@ -27,21 +27,27 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
-        public async Task<ResultModel> CreateOrUpdate(ShiftDTO model)
+        public ResultModel CreateOrUpdate(ShiftDTO model)
         {
             try
             {
-                var data = _mapper.Map<Shifts>(model);
-                if(data.ShiftId == 0) 
+                var data = new Shifts
+                {
+                    Shift = model.Shift,
+                    ShiftCode = model.ShiftCode,
+                    ShiftId = model.ShiftId!.Value,
+                    IsActive = true
+                };
+                if (data.ShiftId == 0)
                 {
                     data.ShiftCode = GetNextCode();
                     var result = _unitOfWork.ShiftRepository.Insert(data);
                 }
-                else 
+                else
                 {
                     _unitOfWork.ShiftRepository.UpdateVoid(data);
                 }
-                
+
                 var list = _unitOfWork.ShiftRepository.GetAll();
                 _unitOfWork.Commit();
                 _resultModel.Success = true;

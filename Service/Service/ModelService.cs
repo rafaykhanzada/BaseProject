@@ -31,7 +31,16 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Models>(model);
+                var data = new Models
+                {
+                    ModelId = model.ModelId,
+                    Model = model.Model,
+                    Code = model.Code,
+                    IsActive = model.IsActive,
+                    CreatedOn = DateTime.Now,
+                    UpdatedOn = DateTime.Now,
+                    FkVariantId=model.FkVariantId
+                };
                 if (data.ModelId == 0)
                     _unitOfWork.ModelRepository.Insert(data);
                 else
@@ -103,8 +112,10 @@ namespace Service.Service
                 
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ModelDTO>(Search);
                 var data = _unitOfWork.ModelRepository.PagedList(query, pageIndex, pageSize);
-                foreach (var item in _mapper.Map<List<ModelDTO>>(data.List))
+                var list = _mapper.Map<List<ModelDTO>>(data.List);
+                foreach (var item in list)
                     item.Variant = _unitOfWork.VariantRepository.Get(v => v.VariantId == item.FkVariantId).FirstOrDefault()!.Variant;
+                data.List = list;
                 _resultModel.Success = true;
                 _resultModel.Data = data;
             }

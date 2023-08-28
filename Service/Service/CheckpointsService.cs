@@ -28,17 +28,30 @@ namespace Service.Service
             _logger = logger;
             _resultModel = resultModel;
         }
-        public async Task<ResultModel> CreateOrUpdate(CheckpointsDTO model)
+        public ResultModel CreateOrUpdate(CheckpointsDTO model)
         {
             try
             {
-                var data = _mapper.Map<Checkpoints>(model);
-                if(data.CheckpointId == 0) 
+                var data = new Checkpoints
+                {
+                    CheckpointId = model.CheckpointId.Value,
+                    FkAuditTypeId = model.FkAuditTypeId,
+                    FkFaultGroupId = model.FkFaultGroupId,
+                    FkClassId = model.FkClassId,
+                    FkVariantId = model.FkVariantId,
+                    FkZoneOrStationId = model.FkZoneOrStationId,
+                    CPCode = model.CPCode,
+                    DefectWeightage = model.DefectWeightage,
+                    OrderNo = model.OrderNo,
+                    Standard = model.Standard,
+                    Description = model.Description
+                };
+                if (data.CheckpointId == 0)
                 {
                     data.CPCode = GetNextCode();
                     var result = _unitOfWork.CheckpointsRepository.Insert(data);
                 }
-                else 
+                else
                 {
                     _unitOfWork.CheckpointsRepository.UpdateVoid(data);
                 }

@@ -105,8 +105,13 @@ namespace Service.Service
             try
             {
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<EmailDTO>(Search);
-                _resultModel.Data = _unitOfWork.EmailRepository.PagedList(query, pageIndex, pageSize);
+                var list = _unitOfWork.EmailRepository.PagedList(query, pageIndex, pageSize);
+                var data = _mapper.Map<List<EmailDTO>>(list.List);
+                foreach (var item in data)
+                    item.PlantName = item.PlantId !=null ? _unitOfWork.PlantRepository.Get(x => x.PlantId == item.PlantId).FirstOrDefault()!.Plant:null;
+                list.List = data;
                 _resultModel.Success = true;
+                _resultModel.Data = list;
             }
             catch (Exception ex)
             {
