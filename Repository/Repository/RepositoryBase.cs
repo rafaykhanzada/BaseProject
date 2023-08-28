@@ -248,7 +248,11 @@ namespace Repository.Repository
         //Dapper Extra Method
         public void Add(T entity, bool LastInsertId = false) => DbConnection.Insert<T>(entity, transaction: _transaction);
         public bool Add(T entity) => DbConnection.Insert<T>(entity, transaction: _transaction) > 0;
-        public bool Delete(int Id) => (int)DbConnection.Execute($"delete from {EntityName} where Id = @Id", param: new { Id }, transaction: _transaction) > 0;
+        public bool Delete(int Id)
+        {
+            var keyInfo = GetEntityKeyInfo();
+            return (int)DbConnection.Execute($"delete from {EntityName} where {keyInfo.Name} = @Id", param: new { Id }, transaction: _transaction) > 0;
+        }
         public bool Update(T entity) => DbConnection.Update<T>(entity, transaction: _transaction);
         public bool Update(List<T> entity) => DbConnection.Update<List<T>>(entity, transaction: _transaction);
         public bool IsExist(string Query) => Count(Query) > 0;

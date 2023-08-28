@@ -22,6 +22,7 @@ namespace Core.Utilities
                 config.CreateMap<Variants, VariantDTO>().ReverseMap();
                 config.CreateMap<AuditTypes, AuditTypeDTO>().ReverseMap();
                 config.CreateMap<Products, ProductDTO>().ReverseMap();
+                config.CreateMap<ProductDTO, Products>().ReverseMap();
                 config.CreateMap<Plants, PlantDTO>().ReverseMap();
                 config.CreateMap<ZoneOrStations, ZoneDTO>().ReverseMap();
                 config.CreateMap<Category, CategoryDTO>().ReverseMap();

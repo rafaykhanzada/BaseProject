@@ -115,8 +115,14 @@ namespace Service.Service
             try
             {
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<VariantDTO>(Search);
-                _resultModel.Data = _unitOfWork.VariantRepository.PagedList(query, pageIndex, pageSize);
+                var data = _unitOfWork.VariantRepository.PagedList(query, pageIndex, pageSize);
+                var list = _mapper.Map<List<VariantDTO>>(data.List);
+                foreach (var item in list)
+                    if (item.auditTypeId != null)
+                        item.AudTypeName = _unitOfWork.AuditTypeRepository.Get(x=> x.AuditTypeId==item.auditTypeId).FirstOrDefault()!.AuditType;
+                data.List = list;
                 _resultModel.Success = true;
+                _resultModel.Data = data;
             }
             catch (Exception ex)
             {

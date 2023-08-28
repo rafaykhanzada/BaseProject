@@ -13,6 +13,7 @@ namespace Core.Data.DTO
         public string? Product { get; set; }
         public string? ProductCode { get; set; }
         public int? FkPlantId { get; set; }
+        public string? Plant { get; set; }
         public bool IsActive { get; set; }
     }
 }

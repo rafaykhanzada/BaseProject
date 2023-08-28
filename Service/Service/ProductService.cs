@@ -32,7 +32,14 @@ namespace Service.Service
         {
             try
             {
-                var data = _mapper.Map<Products>(model);
+                var data = new Products
+                {
+                    FkPlantId = model.FkPlantId,
+                    IsActive = model.IsActive,
+                    Product = model.Product,
+                    ProductId = model.ProductId,
+                    ProductCode =model.ProductCode
+                };
                 if (data.FkPlantId == null || data.FkPlantId == 0)
                 {
                     _resultModel.Success = false;
@@ -70,7 +77,7 @@ namespace Service.Service
                 var result = _unitOfWork.ProductRepository.Get(x => x.ProductId == id).FirstOrDefault();
                 if (result != null)
                 {
-                    if (ValidateForDelete(id))
+                    if (!ValidateForDelete(id))
                     {
                         _unitOfWork.ProductRepository.Delete(id);
                         _unitOfWork.Commit();
@@ -123,7 +130,13 @@ namespace Service.Service
             {
 
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ProductDTO>(Search);
-                _resultModel.Data = _unitOfWork.ProductRepository.PagedList(query, pageIndex, pageSize);
+                var data  = _unitOfWork.ProductRepository.PagedList(query, pageIndex, pageSize);
+                var list = _mapper.Map<List<ProductDTO>>(data.List);
+                foreach (var item in list)
+                    if (item.FkPlantId !=null)
+                        item.Plant = _unitOfWork.PlantRepository.Get(x => x.PlantId == item.FkPlantId).FirstOrDefault()?.Plant;
+                data.List = list;
+                _resultModel.Data = data;
                 _resultModel.Success = true;
             }
             catch (Exception ex)
@@ -177,7 +190,8 @@ namespace Service.Service
         {
             try
             {
-                return _unitOfWork.VariantRepository.Get(x => x.FkProductId == id).Any();
+                var data= _unitOfWork.VariantRepository.Get(x => x.FkProductId == id).Any();
+                return data;
             }
             catch (Exception ex)
             {
