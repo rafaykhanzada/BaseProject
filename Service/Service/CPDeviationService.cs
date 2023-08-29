@@ -61,7 +61,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
@@ -97,7 +97,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
@@ -121,7 +121,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
@@ -145,7 +145,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
@@ -182,7 +182,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
@@ -212,7 +212,7 @@ namespace Service.Service
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
-                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, "{}", "X");
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(ex.Message), "X");
                 _unitOfWork.Commit();
             }
             return _resultModel;
