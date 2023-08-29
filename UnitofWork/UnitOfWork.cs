@@ -32,6 +32,7 @@ namespace UnitofWork
         private IVariantRepository _variantRepository;
         private IZoneRepository _zoneRepository;
         private IUserRepository _userRepository;
+        private IAuditLoggerRepository _auditLoggerRepository;
         public UnitOfWork(IDbTransaction transaction)
         {
             _transaction = transaction;
@@ -53,7 +54,7 @@ namespace UnitofWork
         public ICategoryRepository CategoryRepository => _categoryRepository ??= new CategoryRepository(_transaction);
         public IMenuRepository MenuRepository => _menuRepository ??= new MenuRepository(_transaction);
         public IPermissionRepository PermissionRepository => _permissionRepository ??= new PermissionRepository(_transaction);
-
+        public IAuditLoggerRepository AuditLoggerRepository => _auditLoggerRepository ??= new AuditLoggerRepository(_transaction);
         public void Commit()
         {
             try
@@ -89,6 +90,7 @@ namespace UnitofWork
             _variantRepository = null;
             _zoneRepository = null;
             _userRepository = null;
+            _auditLoggerRepository = null;
 
         }
         public void Dispose()

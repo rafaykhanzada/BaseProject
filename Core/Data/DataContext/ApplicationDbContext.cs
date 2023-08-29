@@ -41,6 +41,7 @@ namespace Core.Data.DataContext
         public DbSet<RefreshToken> RefreshToken { get; set; }
         public DbSet<Menu> Menu { get; set; }
         public DbSet<Permission> Permission { get; set; }
+        public DbSet<Logger> Logger { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

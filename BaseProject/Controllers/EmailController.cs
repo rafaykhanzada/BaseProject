@@ -15,18 +15,22 @@ namespace BaseProject.Controllers
         private readonly IEmailRepository _emailRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IAuditLoggerService _auditLoggerService;
 
-        public EmailController(IEmailService emailService, IHttpContextAccessor httpContextAccessor, IEmailRepository emailRepository, IMapper mapper)
+        public EmailController(IEmailService emailService, IHttpContextAccessor httpContextAccessor, IEmailRepository emailRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
             _emailRepository = emailRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _emailService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _emailService.Export(userId, Search);
             if (result.Success == false)
                 return BadRequest(result);
             else
@@ -42,14 +46,18 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _emailRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_emailService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_emailService.Get(userId, pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_emailService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_emailService.Get(userId, id));
         }
 
         // POST api/<CategoryController>
@@ -58,7 +66,12 @@ namespace BaseProject.Controllers
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _emailService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _emailService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -67,7 +80,12 @@ namespace BaseProject.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] EmailDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _emailService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _emailService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -75,7 +93,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_emailService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_emailService.Delete(userId, id));
         }
 
     }

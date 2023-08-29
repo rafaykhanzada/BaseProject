@@ -1,9 +1,12 @@
-﻿using Core.Data.DTOs;
+﻿using Core.Data.DTO;
+using Core.Data.DTOs;
 using Core.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using Service.IService;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,16 +18,19 @@ namespace Service.Service
     {
         private readonly RoleManager<Role> _roleManager;
         private readonly IUnitOfWork _unitOfWork;
+        private IAuditLoggerService _auditLoggerService;
 
-        public MenuService(RoleManager<Role> roleManager, IUnitOfWork unitOfWork)
+
+        public MenuService(RoleManager<Role> roleManager, IUnitOfWork unitOfWork, IAuditLoggerService auditLoggerService)
         {
             _roleManager = roleManager;
             _unitOfWork = unitOfWork;
+            _auditLoggerService = auditLoggerService;
         }
 
         public async Task<object> GetMenu(string roleName)
         {
-
+            //var task = "";
             #region RoleBasePermission
             //var e = _context.Permission.Where(p=>p.IsAllow==true).Include(d=>d.Control).Include(x => x.Role).Where(x=>x.RoleId==x.Role.Id).ToList();
             try
@@ -39,6 +45,7 @@ namespace Service.Service
                     #endregion
                     if (control_ids.Count > 0)
                     {
+                        //task = "Menu showed";
                         var menus = _unitOfWork.MenuRepository.Get(x => x.Pcid == null && x.ControlType == "Menu" && x.IsMenu == true && control_ids.Contains(x.ControlId)).Select(x => new
                         {
                             key = x.ControlId,
@@ -56,10 +63,15 @@ namespace Service.Service
                                 sortorder = c.SortOrder
                             }).OrderBy(o => o.sortorder).ToList()
                         }).ToList();
+                        //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(menus), "I");
+                        //_unitOfWork.Commit();
                         return menus;
                     }
                     else
                     {
+                        //task = "control null";
+                        //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(""), "O");
+                        //_unitOfWork.Commit();
                         return null;
 
                     }
@@ -68,6 +80,9 @@ namespace Service.Service
             }
             catch (Exception e)
             {
+                //task = "control error";
+                //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(""), "X");
+                //_unitOfWork.Commit();
                 return null;
             }
 

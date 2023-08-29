@@ -26,7 +26,7 @@ namespace UnitofWork
         IVariantRepository VariantRepository { get; }
         IZoneRepository ZoneRepository { get; }
         IUserRepository UserRepository { get; }
-
+        IAuditLoggerRepository AuditLoggerRepository { get; }
         void Commit();
     }
 }

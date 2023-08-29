@@ -15,18 +15,22 @@ namespace BaseProject.Controllers
         private readonly IAuditTypeRepository _auditTypeRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IAuditLoggerService _auditLoggerService;
 
-        public AuditTypeController(IAuditTypeService audityTypeService, IHttpContextAccessor httpContextAccessor, IAuditTypeRepository auditTypeRepository, IMapper mapper)
+        public AuditTypeController(IAuditTypeService audityTypeService, IHttpContextAccessor httpContextAccessor, IAuditTypeRepository auditTypeRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _audityTypeService = audityTypeService;
             _httpContextAccessor = httpContextAccessor;
             _auditTypeRepository = auditTypeRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _audityTypeService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _audityTypeService.Export(userId,Search);
             if (result.Success == false)
                 return BadRequest(result);
             else
@@ -43,14 +47,18 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _auditTypeRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_audityTypeService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_audityTypeService.Get(userId,pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_audityTypeService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_audityTypeService.Get(userId, id));
         }
 
         // POST api/<CategoryController>
@@ -59,7 +67,12 @@ namespace BaseProject.Controllers
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _audityTypeService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _audityTypeService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -68,7 +81,12 @@ namespace BaseProject.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] AuditTypeDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _audityTypeService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _audityTypeService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -76,7 +94,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_audityTypeService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_audityTypeService.Delete(userId, id));
         }
 
     }

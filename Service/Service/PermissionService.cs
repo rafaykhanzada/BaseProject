@@ -4,6 +4,7 @@ using Core.Data.DTOs;
 using Core.Data.Entities;
 using Core.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using Service.IService;
 using System;
 using System.Collections.Generic;
@@ -20,36 +21,48 @@ namespace Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private ResultModel _resultModel;
         private readonly IMapper _mapper;
+        private IAuditLoggerService _auditLoggerService;
 
-        public PermissionService(RoleManager<Role> roleManager, IUnitOfWork unitOfWork, ResultModel resultModel, IMapper mapper)
+        public PermissionService(RoleManager<Role> roleManager, IUnitOfWork unitOfWork, ResultModel resultModel, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _roleManager = roleManager;
             _unitOfWork = unitOfWork;
             _resultModel = resultModel;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
 
 
-        public async Task<ResultModel> CreatePermissionWithRole(RolePermissionVM model)
+        public async Task<ResultModel> CreatePermissionWithRole( RolePermissionVM model)
         {
+            var task = "";
             try
             {
                 var role = await _roleManager.FindByNameAsync(model.header.roleName);
                 if (role == null)
                 {
+                    task = "Create";
                     role = _roleManager.Roles.Where(x => x.Id == model.header.roleId).FirstOrDefault();
+                    //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(model), "I");
 
+                    _unitOfWork.Commit();
                 }
                 if (role != null)
                 {
+                    task = "Update";
                     role.Name = model.header.roleName;
                     role.IsActive = model.header.isActive;
                     await _roleManager.UpdateAsync(role);
+                    //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(model), "I");
+                    _unitOfWork.Commit();
                 }
                 else
                 {
+                    task = "Create";
                     await _roleManager.CreateAsync(new Role { Name = model.header.roleName, IsActive = model.header.isActive });
                     role = await _roleManager.FindByNameAsync(model.header.roleName);
+                    //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(model), "I");
+                    _unitOfWork.Commit();
                 }
 
 
@@ -157,10 +170,12 @@ namespace Service.Service
             //return _mapper.Map<PermissionVM>(result);
         }
 
-        public async Task<object> GetsPermissionbyRoleAsync(string roleName)
+        public async Task<object> GetsPermissionbyRoleAsync( string roleName)
         {
+            //var task = "";
             try
             {
+                //task = "Get Permission by role";
                 var user_role = await _roleManager.FindByNameAsync(roleName);
                 if (user_role != null)
                 {
@@ -180,6 +195,9 @@ namespace Service.Service
                             edit = Cntrl.Where(x => x.Pcid == c.ControlId && x.ControlType == "Ctrl" && x.ControlName == "PUT").FirstOrDefault() != null ? 1 : 0,
                             view = Cntrl.Where(x => x.Pcid == c.ControlId && x.ControlType == "Ctrl" && x.ControlName == "GET").FirstOrDefault() != null ? 1 : 0
                         }).ToList();
+                        //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(Cntrl), "I");
+
+                        //_unitOfWork.Commit();
                     }
                 }
                 return null;
@@ -193,16 +211,21 @@ namespace Service.Service
 
         public async Task<ResultModel> GetMenuWithAction(string role)
         {
+            //var task = "";
             #region RoleBasePermission
             //var e = _context.Permission.Where(p=>p.IsAllow==true).Include(d=>d.Control).Include(x => x.Role).Where(x=>x.RoleId==x.Role.Id).ToList();
             var user_role = await _roleManager.FindByIdAsync(role);
             if (user_role == null) 
             {
+                //task = "role not found";
                 _resultModel.Success = false;
                 _resultModel.Message = "Role not fount.";
                 _resultModel.Data = "";
+                //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+                //_unitOfWork.Commit();
                 return _resultModel;
             }
+            //task = "role found";
             var control_ids = _unitOfWork.PermissionRepository.Get(p => p.RoleId == user_role.Id && p.IsActive == true).Select(s => s.ControlId);
             #endregion
             #region Menus
@@ -230,11 +253,14 @@ namespace Service.Service
             }).ToList();
             _resultModel.Success = true;
             _resultModel.Data = menus;
+            //_auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+            //_unitOfWork.Commit();
             return _resultModel;
             #endregion
         }
         public async Task<ResultModel> GetMenuoutWithAction()
         {
+            //var task = "";
             #region RoleBasePermission           
             var menus = _unitOfWork.MenuRepository.Get(x => x.Pcid == null && x.ControlType == "Menu" && x.IsMenu == true).Select(p => new MenuLookUpVM()
             {

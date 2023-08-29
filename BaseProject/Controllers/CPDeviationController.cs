@@ -15,18 +15,22 @@ namespace BaseProject.Controllers
         private readonly ICPDeviationRepository _cpdeviationRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IAuditLoggerService _auditLoggerService;
 
-        public CPDeviationController(ICPDeviationService cpdeviationService, IHttpContextAccessor httpContextAccessor, ICPDeviationRepository cpdeviationRepository, IMapper mapper)
+        public CPDeviationController(ICPDeviationService cpdeviationService, IHttpContextAccessor httpContextAccessor, ICPDeviationRepository cpdeviationRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _cpdeviationService = cpdeviationService;
             _httpContextAccessor = httpContextAccessor;
             _cpdeviationRepository = cpdeviationRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _cpdeviationService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _cpdeviationService.Export(userId, Search);
             if (result.Success == false)
                 return BadRequest(result);
             else
@@ -42,14 +46,18 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _cpdeviationRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_cpdeviationService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpdeviationService.Get(userId,pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_cpdeviationService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpdeviationService.Get(userId, id));
         }
 
         // POST api/<CategoryController>
@@ -57,8 +65,12 @@ namespace BaseProject.Controllers
         public async Task<IActionResult> Post([FromBody] CPDeviationDTO model)
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
-            if (ModelState.IsValid)
-                return Ok(await _cpdeviationService.CreateOrUpdate(model));
+            if (ModelState.IsValid) {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _cpdeviationService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -66,8 +78,12 @@ namespace BaseProject.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] CPDeviationDTO model)
         {
-            if (ModelState.IsValid)
-                return Ok(await _cpdeviationService.CreateOrUpdate(model));
+            if (ModelState.IsValid) {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _cpdeviationService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -75,7 +91,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_cpdeviationService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpdeviationService.Delete(userId,id));
         }
 
     }

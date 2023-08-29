@@ -100,6 +100,7 @@ namespace BaseProject.Infrastructure
             services.AddScoped<IShiftRepository, ShiftRepository>();
             services.AddScoped<IVariantRepository, VariantRepository>();
             services.AddScoped<IZoneRepository, ZoneRepository>();
+            services.AddScoped<IAuditLoggerRepository, AuditLoggerRepository>();
 
             #endregion
             #region Services
@@ -125,7 +126,7 @@ namespace BaseProject.Infrastructure
             services.AddScoped<IVariantService, VariantService>();
             services.AddScoped<IZoneService, ZoneService>();
             services.AddScoped<IFileService, FileService>();
-
+            services.AddScoped<IAuditLoggerService, AuditLoggerService>();
             #endregion
 
 

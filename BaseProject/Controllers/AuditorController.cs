@@ -14,13 +14,15 @@ namespace BaseProject.Controllers
         private readonly IAuditorRepository _auditorRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IAuditLoggerService _auditLoggerService;
 
-        public AuditorController(IAuditorService auditorService, IHttpContextAccessor httpContextAccessor, IAuditorRepository auditorRepository, IMapper mapper)
+        public AuditorController(IAuditorService auditorService, IHttpContextAccessor httpContextAccessor, IAuditorRepository auditorRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _auditorService = auditorService;
             _httpContextAccessor = httpContextAccessor;
             _auditorRepository = auditorRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
 
         // GET: api/<CategoryController>
@@ -28,21 +30,30 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _auditorRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_auditorService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_auditorService.Get(userId,pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_auditorService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_auditorService.Get(userId,id));
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _auditorService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _auditorService.Export(userId,Search);
             if (result.Success == false)
+            {
                 return BadRequest(result);
+            }
+                
             else
             {
                 string FileName = ControllerContext.ActionDescriptor.ControllerName + "_" + DateTime.Now.ToString("dd/MMM/yyyy HH:mm:ss") + ".xlsx";
@@ -54,20 +65,30 @@ namespace BaseProject.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] AuditorDTO model)
+        public IActionResult Post([FromBody] AuditorDTO model)
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _auditorService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(_auditorService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] AuditorDTO model)
+        public IActionResult Put(int id, [FromBody] AuditorDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _auditorService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(_auditorService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -75,7 +96,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_auditorService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_auditorService.Delete(userId,id));
         }
 
     }

@@ -15,18 +15,22 @@ namespace BaseProject.Controllers
         private readonly IShiftRepository _shiftRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly IAuditLoggerService _auditLoggerService;
 
-        public ShiftController(IShiftService shiftService, IHttpContextAccessor httpContextAccessor, IShiftRepository shiftRepository, IMapper mapper)
+        public ShiftController(IShiftService shiftService, IHttpContextAccessor httpContextAccessor, IShiftRepository shiftRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _shiftService = shiftService;
             _httpContextAccessor = httpContextAccessor;
             _shiftRepository = shiftRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _shiftService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _shiftService.Export(userId, Search);
             if (result.Success == false)
                 return BadRequest(result);
             else
@@ -42,14 +46,18 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _shiftRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_shiftService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_shiftService.Get(userId,pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_shiftService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_shiftService.Get(userId, id));
         }
 
         // POST api/<CategoryController>
@@ -58,7 +66,12 @@ namespace BaseProject.Controllers
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(_shiftService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(_shiftService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -67,7 +80,12 @@ namespace BaseProject.Controllers
         public IActionResult Put(int id, [FromBody] ShiftDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(_shiftService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(_shiftService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -75,7 +93,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_shiftService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_shiftService.Delete(userId,id));
         }
 
     }

@@ -16,18 +16,21 @@ namespace BaseProject.Controllers
         private readonly ICPClassRepository _cpclassRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-
-        public CPClassController(ICPClassService cpclassService, IHttpContextAccessor httpContextAccessor, ICPClassRepository cpclassRepository, IMapper mapper)
+        private readonly IAuditLoggerService _auditLoggerService;
+        public CPClassController(ICPClassService cpclassService, IHttpContextAccessor httpContextAccessor, ICPClassRepository cpclassRepository, IMapper mapper, IAuditLoggerService auditLoggerService)
         {
             _cpclassService = cpclassService;
             _httpContextAccessor = httpContextAccessor;
             _cpclassRepository = cpclassRepository;
             _mapper = mapper;
+            _auditLoggerService = auditLoggerService;
         }
         [HttpGet("export")]
         public IActionResult Get(string? Search = null)
         {
-            var result = _cpclassService.Export(Search);
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            var result = _cpclassService.Export(userId, Search);
             if (result.Success == false)
                 return BadRequest(result);
             else
@@ -43,14 +46,18 @@ namespace BaseProject.Controllers
         public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _cpclassRepository.PagedList($"", pageIndex, pageSize).List;
-            return Ok(_cpclassService.Get(pageIndex,pageSize,Search));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpclassService.Get(userId,pageIndex,pageSize,Search));
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_cpclassService.Get(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpclassService.Get(userId, id));
         }
 
         // POST api/<CategoryController>
@@ -59,7 +66,12 @@ namespace BaseProject.Controllers
         {
             //var user = _httpContextAccessor.HttpContext.Request.Headers["UserId"];
             if (ModelState.IsValid)
-                return Ok(await _cpclassService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _cpclassService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
         
@@ -68,7 +80,12 @@ namespace BaseProject.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] CPClassDTO model)
         {
             if (ModelState.IsValid)
-                return Ok(await _cpclassService.CreateOrUpdate(model));
+            {
+                var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var userId = _auditLoggerService.ExtractJWT(jwtToken);
+                return Ok(await _cpclassService.CreateOrUpdate(userId, model));
+
+            }
             return BadRequest();
         }
 
@@ -76,7 +93,9 @@ namespace BaseProject.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            return Ok(_cpclassService.Delete(id));
+            var jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _auditLoggerService.ExtractJWT(jwtToken);
+            return Ok(_cpclassService.Delete(userId, id));
         }
 
     }

@@ -2,6 +2,8 @@ using BaseProject.Infrastructure;
 using BaseProject.Middlewear;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Service.IService;
+using Service.Service;
 using System.Data;
 using UnitofWork;
 
@@ -26,9 +28,8 @@ options.AddDefaultPolicy(builder =>
 }));
 builder.Services.AddEndpointsApiExplorer();
 
-builder.WebHost.UseUrls("https://192.168.19.23:5001/");
+//builder.WebHost.UseUrls("https://192.168.19.23:5001/");
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
 builder.Services.AddScoped((s) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IDbTransaction>(s =>
 {

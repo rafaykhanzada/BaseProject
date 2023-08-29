@@ -3,6 +3,7 @@ using Core.Data.DTO;
 using Core.Data.Entities;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Service.IService;
 using System;
 using System.Collections.Generic;
@@ -20,16 +21,20 @@ namespace Service.Service
         private readonly IMapper _mapper;
         private readonly ILogger<Products> _logger;
         private ResultModel _resultModel;
+        private IAuditLoggerService _auditLoggerService;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Products> logger, ResultModel resultModel)
+
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<Products> logger, ResultModel resultModel, IAuditLoggerService auditLoggerService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _resultModel = resultModel;
+            _auditLoggerService = auditLoggerService;
         }
-        public ResultModel CreateOrUpdate(ProductDTO model)
+        public ResultModel CreateOrUpdate(string user,ProductDTO model)
         {
+            var task = "";
             try
             {
                 var data = new Products
@@ -42,93 +47,121 @@ namespace Service.Service
                 };
                 if (data.FkPlantId == null || data.FkPlantId == 0)
                 {
+                    task = "Plant Id is null";
                     _resultModel.Success = false;
                     _resultModel.Message = "Plant id is required";
+                    _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+                    _unitOfWork.Commit();
                     return _resultModel;
                 }
                 if (data.ProductId == 0)
                 {
+                    task = "Create";
                     data.ProductCode = GetNextCode();
                     var result = _unitOfWork.ProductRepository.Insert(data);
                 }
                 else
                 {
+                    task = "Update";
                     _unitOfWork.ProductRepository.UpdateVoid(data);
                 }
 
                 var list = _unitOfWork.ProductRepository.GetAll();
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(model), "I");
                 _unitOfWork.Commit();
                 _resultModel.Success = true;
                 _resultModel.Data = list;
             }
             catch (Exception ex)
             {
+                task = "Create / Update Error";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
 
-        public ResultModel Delete(int id)
+        public ResultModel Delete(string user,int id)
         {
+            var task = "";
             try
             {
+                task = "Delete by ID";
                 var result = _unitOfWork.ProductRepository.Get(x => x.ProductId == id).FirstOrDefault();
                 if (result != null)
                 {
                     if (!ValidateForDelete(id))
                     {
                         _unitOfWork.ProductRepository.Delete(id);
+                        _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
                         _unitOfWork.Commit();
                         _resultModel.Success = true;
                         _resultModel.Message = "Record deleted sucessfully.";
                     }
                     else
                     {
+                        task = "Warning Delete by ID";
                         _resultModel.Success = false;
                         _resultModel.Message = "Record can't be deleted sucessfully, it is in used.";
+                        _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "O");
+                        _unitOfWork.Commit();
                     }
 
                 }
                 else
                 {
+                    task = "Warning Delete by ID";
                     _resultModel.Success = false;
                     _resultModel.Message = "Record not found.";
+                    _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "O");
+                    _unitOfWork.Commit();
                 }
 
             }
             catch (Exception ex)
             {
+                task = "Error Delete by ID";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
 
-        public ResultModel Get()
+        public ResultModel Get(string user)
         {
+            var task = "";
             try
             {
+                task = "Get";
                 _resultModel.Data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.GetAll().ToList());
                 _resultModel.Success = true;
-
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
+                task = "Get Error";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
 
-        public ResultModel Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
+        public ResultModel Get(string user,int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
         {
+            var task = "";
             try
             {
-
+                task = "Get";
                 var query = String.IsNullOrEmpty(Search) ? "" : DBUtil.GenerateSearchQuery<ProductDTO>(Search);
                 var data  = _unitOfWork.ProductRepository.PagedList(query, pageIndex, pageSize);
                 var list = _mapper.Map<List<ProductDTO>>(data.List);
@@ -138,36 +171,62 @@ namespace Service.Service
                 data.List = list;
                 _resultModel.Data = data;
                 _resultModel.Success = true;
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
+                task = "Get Error";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
 
-        public ResultModel Get(int id)
+        public ResultModel Get(string user,int id)
         {
+            var task = "";
             try
             {
+                task = "Get by ID";
                 _resultModel.Data = _mapper.Map<ProductDTO>(_unitOfWork.ProductRepository.Get(s => s.FkPlantId == id).FirstOrDefault());
-
+                if (_resultModel.Data == null)
+                {
+                    task = "Warning Get by ID";
+                    _resultModel.Success = false;
+                    _resultModel.Message = "User Not Found";
+                    _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "O");
+                    _unitOfWork.Commit();
+                }
+                else
+                {
+                    _resultModel.Success = true;
+                    _resultModel.Message = "User Found";
+                    _auditLoggerService.LogTransactionStatus<AuditorDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "I");
+                    _unitOfWork.Commit();
+                }
                 return _resultModel;
             }
             catch (Exception ex)
             {
+                task = "Get by ID Error";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(_resultModel.Data), "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
-        public ResultModel Export(string? Search = null)
+        public ResultModel Export(string user,string? Search = null)
         {
+            var task = "";
             try
             {
+                task = "Export";
                 List<ProductDTO> data = new();
                 data = _mapper.Map<List<ProductDTO>>(_unitOfWork.ProductRepository.Get(x => x.DeletedOn == null).ToList());
                 if (!String.IsNullOrEmpty(Search))
@@ -176,18 +235,24 @@ namespace Service.Service
                 _resultModel.Success = true;
                 _resultModel.Data = content;
                 _resultModel.Message = $"Total Items Exported {data.Count}";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, JsonConvert.SerializeObject(data), "I");
+                _unitOfWork.Commit();
                 return _resultModel;
             }
             catch (Exception ex)
             {
+                task = "Export Error";
                 _logger.LogError("Error:", ex);
                 _resultModel.Success = false;
                 _resultModel.Message = "Error While Get Record";
+                _auditLoggerService.LogTransactionStatus<LoggerDTO>(user, task, "{}", "X");
+                _unitOfWork.Commit();
             }
             return _resultModel;
         }
         private bool ValidateForDelete(int id)
         {
+            var task = "";
             try
             {
                 var data= _unitOfWork.VariantRepository.Get(x => x.FkProductId == id).Any();
