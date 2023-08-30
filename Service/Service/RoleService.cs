@@ -164,7 +164,7 @@ namespace Service.Service
                         data = data.Where(x =>
                         !String.IsNullOrEmpty(x.NormalizedName) && x.NormalizedName.Contains(Search.ToUpper()));
                     _resultModel.Success = true;
-                    _resultModel.Data = new ListModel(new PagedList<RoleVM>(_mapper.Map<List<RoleVM>>(data.OrderBy(x => x.Name).ToList()), pageIndex, pageSize), data.Count());
+                    _resultModel.Data = new ListModel(new PagedList<RoleVM>(_mapper.Map<List<RoleVM>>(data.OrderBy(x => x.Name).ToList()), pageIndex, pageSize, data.Count()), data.Count());
 
                 }
                 else
