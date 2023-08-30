@@ -39,7 +39,7 @@ namespace BaseProject.Controllers
         }
         // GET: api/<CategoryController>
         [HttpGet]
-        public IActionResult Get(int pageIndex = 0, int pageSize = int.MaxValue, string? Search = null)
+        public IActionResult Get(int pageIndex = 1, int pageSize = int.MaxValue, string? Search = null)
         {
             //var list = _emailRepository.PagedList($"", pageIndex, pageSize).List;
             return Ok(_emailService.Get(pageIndex,pageSize,Search));

@@ -23,7 +23,7 @@ namespace BaseProject.Controllers
         [HttpGet("lookup")]
         public IActionResult GetUserLookup(string? type) => Ok(_userService.GetUserLookup(type));
         [HttpGet]
-        public IActionResult GetUsers(int pageIndex = 0, int pageSize = 10, string? Search = null) => Ok(_userService.Get(pageIndex, pageSize, Search));
+        public IActionResult GetUsers(int pageIndex = 1, int pageSize = 10, string? Search = null) => Ok(_userService.Get(pageIndex, pageSize, Search));
         // POST api/<UserController>
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] UserVM model, IFormFile? file) => Ok(await _userService.CreateOrUpdate(model, _httpContext, file));

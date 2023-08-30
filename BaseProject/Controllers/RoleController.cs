@@ -22,7 +22,7 @@ namespace BaseProject.Controllers
             return Ok(_roleService.Get());
         }
         [HttpGet]
-        public IActionResult Get(int pageIndex = 0, int pageSize = 10, string? Search = null)
+        public IActionResult Get(int pageIndex = 1, int pageSize = 10, string? Search = null)
         {
             return Ok(_roleService.Get(pageIndex, pageSize, Search));
         }

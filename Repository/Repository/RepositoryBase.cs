@@ -283,6 +283,7 @@ namespace Repository.Repository
                 ReturnModel.List = DbConnection.Query<T>($"select * from {EntityName} where 1=1 and {((Query.Length <= 0) ? "1=1" : Query)} ORDER BY {key.Name} DESC OFFSET {(page-1) * pagesize} ROWS FETCH NEXT {pagesize} ROWS ONLY", transaction: _transaction).ToList();
                 ReturnModel.CurrentPage = page;
                 ReturnModel.PageCount = pagesize;
+                ReturnModel.List ??= new List<string>();
                 ReturnModel.ItemCount = Count(Query);
             }
             catch (Exception ex)
